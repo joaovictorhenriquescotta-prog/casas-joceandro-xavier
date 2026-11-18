@@ -18,6 +18,7 @@ export const Icon = {
   home: () => <I><path d="M3 12 12 4l9 8" /><path d="M5 10v10h14V10" /></I>,
   info: () => <I><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></I>,
   full: () => <I><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></I>,
+  images: () => <I><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="8.5" cy="10" r="1.5" /><path d="m21 16-5-5-9 8" /></I>,
   close: () => <I><path d="M6 6l12 12M18 6 6 18" /></I>,
   undo: () => <I><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></I>,
   reset: () => <I><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></I>,
