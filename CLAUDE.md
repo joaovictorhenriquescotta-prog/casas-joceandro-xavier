@@ -139,6 +139,13 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - Mapear o material da faixa do muro e revisar a lista de elementos de cor com ela.
 - Reduzir chamadas de desenho; possivelmente um modo "baixa" mais agressivo para celulares.
 
+## 10.2 Publicação autorizada
+
+- O usuário **autorizou commit e push direto na `main`** ao terminar cada mudança, sem pedir confirmação
+  (18/11/2026). Antes de enviar: `npm run build` precisa passar. Autor dos commits: `Claude <noreply@anthropic.com>`
+  (via `git -c user.name=... -c user.email=...`). Permissões em `.claude/settings.local.json` (fora do Git).
+- No PowerShell 5, não usar `Get-Content`/`Set-Content` para editar arquivos: estragam acentos (UTF-8 sem BOM).
+
 ## 11. Comandos
 
 ```bash

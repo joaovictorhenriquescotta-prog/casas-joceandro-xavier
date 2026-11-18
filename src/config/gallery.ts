@@ -6,14 +6,12 @@ export interface GalleryImage {
 }
 
 export const GALLERY: GalleryImage[] = [
-  { file: '01', caption: 'As duas casas na esquina ao entardecer' },
-  { file: '02', caption: 'Fachada e acesso à garagem' },
-  { file: '03', caption: 'Fachada com iluminação de fim de tarde' },
-  { file: '04', caption: 'Entrada e jardim lateral' },
-  { file: '05', caption: 'Garagem e porta de entrada' },
-  { file: '06', caption: 'Vista aérea das duas casas' },
-  { file: '07', caption: 'Esquina com o muro curvo' },
-  { file: '08', caption: 'Quatro opções de cores para a fachada' },
+  { file: '01', caption: 'Opção de cores: Azul-marinho' },
+  { file: '02', caption: 'Opção de cores: Bege e neutros' },
+  { file: '03', caption: 'Opção de cores: Cinza e preto' },
+  { file: '04', caption: 'Opção de cores: Marrom cacau' },
+  { file: '05', caption: 'Opção de cores: Terracota rosada' },
+  { file: '06', caption: 'Opção de cores: Verde-oliva' },
 ];
 
 export const galleryUrl = (file: string, mini = false) => `/galeria/${file}${mini ? '-mini' : ''}.webp`;
