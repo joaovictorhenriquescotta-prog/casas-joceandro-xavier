@@ -6,13 +6,25 @@ import { useStore } from '../store';
 import { TIME_KEYS, paramsAt, sunDirection } from './timeOfDay';
 import { timeState } from './runtime';
 
-const dayHdri = import('@pmndrs/assets/hdri/park.exr');
 const INTERIOR_SKY = new THREE.Color('#fff3e4');
 const INTERIOR_GROUND = new THREE.Color('#b9ad9c');
-const nightHdri = import('@pmndrs/assets/hdri/night.exr');
+
+/*
+ * Ambiente de iluminação indireta (IBL) gerado a partir de um degradê céu/horizonte/chão.
+ * Um HDRI fotográfico (parque) tingia de verde as faces voltadas para baixo (beirais)
+ * e de azul o gramado; o degradê neutro acompanha o período do dia sem esse viés.
+ */
+const envMat = new THREE.ShaderMaterial({
+  uniforms: { top: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, ground: { value: new THREE.Color() } },
+  vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `uniform vec3 top; uniform vec3 horizon; uniform vec3 ground; varying vec3 vDir;
+    void main(){ float y = vDir.y; vec3 c = y > 0.0 ? mix(horizon, top, pow(y, 0.6)) : mix(horizon, ground, pow(-y, 0.35));
+    gl_FragColor = vec4(c, 1.0); }`,
+  side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
+});
 const FOG = { manha: new THREE.Color('#cdd6de'), tarde: new THREE.Color('#e3c7a6'), noite: new THREE.Color('#0d1220') };
 const NIGHT_TOP = new THREE.Color('#03060f');
-const NIGHT_HORIZON = new THREE.Color('#1b2540');
+const NIGHT_HORIZON = new THREE.Color('#2a3352');
 
 /** Céu noturno: degradê simples sobreposto ao céu físico conforme a noite cai. */
 function makeNightDome() {
@@ -30,14 +42,6 @@ function makeNightDome() {
   return m;
 }
 
-function useAsset(p: Promise<{ default: string }>) {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    p.then((m) => setUrl(m.default));
-  }, [p]);
-  return url;
-}
-
 export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: number }) {
   const { gl, scene } = useThree();
   const quality = useStore((s) => s.quality);
@@ -46,9 +50,7 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sky = useRef<any>(null);
   const stars = useRef<THREE.Points>(null!);
-  const [isNight, setNight] = useState(false);
-  const day = useAsset(dayHdri);
-  const night = useAsset(nightHdri);
+  const [envKey, setEnvKey] = useState(-1);
   const dir = useMemo(() => new THREE.Vector3(), []);
   const dome = useMemo(makeNightDome, []);
   const fog = useMemo(() => new THREE.Fog(FOG.tarde.clone(), radius * 3, radius * 22), [radius]);
@@ -85,7 +87,7 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
     if (moon) {
       light.position.copy(center).add(new THREE.Vector3(-0.35, 0.85, 0.4).normalize().multiplyScalar(radius * 2));
       light.intensity = 0.22 * p.night;
-      light.color.set('#8ea4ff');
+      light.color.set('#b4c0e6');
     } else {
       light.position.copy(center).addScaledVector(dir, radius * 2);
       light.intensity = p.sunIntensity;
@@ -99,8 +101,8 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
     const k = timeState.interior;
     hemi.current.color.copy(p.hemiSky).lerp(INTERIOR_SKY, k * (1 - p.night));
     hemi.current.groundColor.copy(p.hemiGround).lerp(INTERIOR_GROUND, k * (1 - p.night));
-    hemi.current.intensity = THREE.MathUtils.lerp(p.hemiIntensity, (1 - p.night) * 1.1 + 0.05, k);
-    gl.toneMappingExposure = p.exposure * (1 + 0.25 * k);
+    hemi.current.intensity = THREE.MathUtils.lerp(p.hemiIntensity, (1 - p.night) * 0.7 + 0.05, k);
+    gl.toneMappingExposure = p.exposure * (1 + 0.15 * k);
     scene.environmentIntensity = p.envIntensity * (1 - 0.65 * k);
     if (sky.current?.material?.uniforms) {
       const u = sky.current.material.uniforms;
@@ -114,8 +116,15 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
     const t = timeState.t;
     if (t <= 1) fog.color.copy(FOG.manha).lerp(FOG.tarde, t);
     else fog.color.copy(FOG.tarde).lerp(FOG.noite, THREE.MathUtils.smoothstep(t - 1, 0, 1));
-    const n = timeState.t > 1.5;
-    if (n !== isNight) setNight(n);
+    // o cubemap do ambiente é refeito em passos de 1/8 do período (barato)
+    const key = Math.round(timeState.t * 8);
+    if (key !== envKey) {
+      const u = envMat.uniforms;
+      u.top.value.copy(p.envTop);
+      u.horizon.value.copy(p.envHorizon);
+      u.ground.value.copy(p.envGround);
+      setEnvKey(key);
+    }
   });
 
   const mapSize = quality === 'alta' ? 4096 : quality === 'media' ? 2048 : 1024;
@@ -140,7 +149,13 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
       <Sky ref={sky} distance={4500} mieCoefficient={0.004} mieDirectionalG={0.85} />
       <primitive object={dome} />
       <Stars ref={stars} radius={300} depth={60} count={2500} factor={6} fade speed={0.3} />
-      {(isNight ? night : day) && <Environment files={(isNight ? night : day)!} environmentRotation={[0, Math.PI / 3, 0]} />}
+      {envKey >= 0 && (
+        <Environment key={envKey} frames={1} resolution={64}>
+          <mesh material={envMat} scale={100}>
+            <sphereGeometry args={[1, 32, 16]} />
+          </mesh>
+        </Environment>
+      )}
     </>
   );
 }

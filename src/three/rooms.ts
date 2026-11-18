@@ -23,7 +23,12 @@ function boundaryEdges(r: RoomMeta) {
   const f = r.footprint ?? [];
   const key = (x: number, z: number) => `${x.toFixed(2)},${z.toFixed(2)}`;
   const count = new Map<string, { n: number; e: number[] }>();
+  const tris = new Set<string>();
   for (let i = 0; i < f.length; i += 6) {
+    // pisos com face dupla (frente e verso) repetem o triângulo: conta só uma vez
+    const tk = [key(f[i], f[i + 1]), key(f[i + 2], f[i + 3]), key(f[i + 4], f[i + 5])].sort().join('/');
+    if (tris.has(tk)) continue;
+    tris.add(tk);
     for (let k = 0; k < 3; k++) {
       const a = k * 2, b = ((k + 1) % 3) * 2;
       const e = [f[i + a], f[i + a + 1], f[i + b], f[i + b + 1]];
@@ -75,7 +80,10 @@ export const houseLabel = (meta: SceneMeta, id: string) => meta.houses.find((h) 
  * Pontos de vista calculados a partir dos ambientes do modelo.
  * Interno: próximo à porta de acesso, olhando para o centro do ambiente.
  */
-export function buildViewpoints(meta: SceneMeta, eye = 1.6): Viewpoint[] {
+/** Consulta de visibilidade no modelo: distância livre a partir de um ponto numa direção. */
+export type FreeProbe = (x: number, y: number, z: number, dx: number, dy: number, dz: number, max: number) => number;
+
+export function buildViewpoints(meta: SceneMeta, eye = 1.6, probe?: FreeProbe): Viewpoint[] {
   const b = meta.houseBounds;
   const cx = (b.min[0] + b.max[0]) / 2;
   const floor = Math.min(...meta.rooms.map((r) => r.floorY));
@@ -104,7 +112,60 @@ export function buildViewpoints(meta: SceneMeta, eye = 1.6): Viewpoint[] {
       const samples = sampleRoom(r);
       if (!samples.length) continue;
       const free = samples.filter((p) => p.clear >= 0.5);
-      const pool = free.length ? free : samples;
+      let pool = free.length ? free : samples;
+      // com o modelo carregado: descarta pontos dentro ou colados em móveis
+      const ok = new Map<Sample, boolean>();
+      const standing = (p: Sample) => {
+        if (!probe) return true;
+        if (ok.has(p)) return ok.get(p)!;
+        let good = true;
+        for (const hy of [0.5, 1.0, eye]) {
+          for (let a = 0; a < 8 && good; a++) {
+            const ang = (a / 8) * Math.PI * 2;
+            if (probe(p.x, r.floorY + hy, p.z, Math.cos(ang), 0, Math.sin(ang), 0.45) < 0.45) good = false;
+          }
+        }
+        ok.set(p, good);
+        return good;
+      };
+      const vis = (p: Sample, t: { x: number; z: number }, ty: number, slack = 0.4) => {
+        if (!probe) return 1;
+        const dx = t.x - p.x, dy = ty - (r.floorY + eye), dz = t.z - p.z;
+        const d = Math.hypot(dx, dy, dz) || 1;
+        const f = probe(p.x, r.floorY + eye, p.z, dx / d, dy / d, dz / d, d);
+        return f >= d - slack ? 1 : f / d;
+      };
+      // campo de visão livre: raios a ±25° do olhar precisam alcançar ao menos 1,8 m
+      const cone = (p: Sample, t: { x: number; z: number }) => {
+        if (!probe) return 1;
+        const base = Math.atan2(t.z - p.z, t.x - p.x);
+        let sum = 0;
+        for (const da of [-0.44, -0.22, 0.22, 0.44]) sum += Math.min(1, probe(p.x, r.floorY + eye, p.z, Math.cos(base + da), 0, Math.sin(base + da), 1.8) / 1.8);
+        return sum / 4;
+      };
+      /**
+       * Melhor enquadramento: posição e alvo com a maior linha de visão livre (diagonal do
+       * ambiente), como um fotógrafo de arquitetura faria. Sem o modelo, usa só o piso.
+       */
+      const longView = (from: Sample[], to: Sample[], bonus: (p: Sample) => number) => {
+        let bestP = from[0], bestT = to[0], bs = -Infinity;
+        for (const p of from) {
+          const far2 = [...to].sort((a, b) => Math.hypot(b.x - p.x, b.z - p.z) - Math.hypot(a.x - p.x, a.z - p.z)).slice(0, 24);
+          for (let i = 0; i < far2.length; i += 3) {
+            const t = far2[i];
+            const d = Math.hypot(t.x - p.x, t.z - p.z);
+            if (d < 1.2) continue;
+            const sc = Math.min(d, 7) * vis(p, t, r.floorY + 1.2) + cone(p, t) * 1.5 + bonus(p);
+            if (sc > bs) { bs = sc; bestP = p; bestT = t; }
+          }
+        }
+        return { p: bestP, t: bestT };
+      };
+      if (probe) {
+        const coarse = pool.filter((p) => Math.round((p.x - r.min[0]) / 0.25) % 2 === 0 && Math.round((p.z - r.min[2]) / 0.25) % 2 === 0);
+        const stand = coarse.filter(standing);
+        if (stand.length) pool = stand;
+      }
       const c = { x: (r.min[0] + r.max[0]) / 2, z: (r.min[2] + r.max[2]) / 2 };
       if (r.type === 'estar') {
         const k = r.kitchen ? { x: r.kitchen[0], z: r.kitchen[1] } : best(pool, (p) => -Math.hypot(p.x - r.min[0], p.z - r.min[2]))!;
@@ -115,22 +176,37 @@ export function buildViewpoints(meta: SceneMeta, eye = 1.6): Viewpoint[] {
           ? { x: far.reduce((a, p) => a + p.x, 0) / far.length, z: far.reduce((a, p) => a + p.z, 0) / far.length }
           : c;
         const dl = (p: { x: number; z: number }) => Math.hypot(p.x - living.x, p.z - living.z);
-        const sala = best(pool, (p) => Math.min(dl(p), 5) + Math.min(p.clear, 1.2) - Math.max(0, 1.6 - dk(p)) * 2)!;
-        vps.push({ id: `${r.id}-sala`, label: 'Sala de estar e jantar', group: h.label, position: [sala.x, r.floorY + eye, sala.z], target: [living.x, r.floorY + 1.1, living.z], room: r.id, mode: 'caminhar' });
-        const coz = best(pool, (p) => -Math.abs(dk(p) - 2.6) + Math.min(p.clear, 1.2) * 0.8)!;
+        const sala = longView(pool, far.length ? far : samples, (p) => Math.min(p.clear, 1) * 0.6 - Math.max(0, 1.6 - dk(p)) * 2);
+        vps.push({ id: `${r.id}-sala`, label: 'Sala de estar e jantar', group: h.label, position: [sala.p.x, r.floorY + eye, sala.p.z], target: [sala.t.x, r.floorY + 1.2, sala.t.z], room: r.id, mode: 'caminhar' });
+        const coz = best(pool, (p) => -Math.abs(dk(p) - 2.6) + Math.min(p.clear, 1.2) * 0.8 + vis(p, k, r.floorY + 0.95, 0.9) * 6 + cone(p, k) * 2)!;
         vps.push({ id: `${r.id}-cozinha`, label: 'Cozinha', group: h.label, position: [coz.x, r.floorY + eye, coz.z], target: [k.x, r.floorY + 0.95, k.z], room: r.id, mode: 'caminhar' });
         continue;
       }
       // demais ambientes: logo depois da porta, olhando para o fundo do ambiente
       const door = meta.doors.find((d) => d.rooms.includes(r.id) && d.rooms.length > 1 && meta.rooms.find((x) => x.id !== r.id && d.rooms.includes(x.id))?.type === 'estar')
         ?? meta.doors.find((d) => d.rooms.includes(r.id));
-      const near = door
-        ? best(pool, (p) => -Math.abs(Math.hypot(p.x - door.hinge[0], p.z - door.hinge[2]) - 0.9) + Math.min(p.clear, 0.8))!
-        : best(pool, (p) => p.clear)!;
-      const look = best(samples, (p) => Math.hypot(p.x - near.x, p.z - near.z))!;
-      const tx = (c.x + look.x) / 2, tz = (c.z + look.z) / 2;
-      vps.push({ id: r.id, label: r.label, group: h.label, position: [near.x, r.floorY + eye, near.z], target: [tx, r.floorY + 1.1, tz], room: r.id, mode: 'caminhar' });
+      const dd = (p: Sample) => (door ? Math.hypot(p.x - door.hinge[0], p.z - door.hinge[2]) : 0);
+      const v = longView(pool, samples, (p) => Math.min(p.clear, 0.8) * 0.5 - Math.max(0, dd(p) - 1.2) * 0.6);
+      vps.push({ id: r.id, label: r.label, group: h.label, position: [v.p.x, r.floorY + eye, v.p.z], target: [v.t.x, r.floorY + 1.15, v.t.z], room: r.id, mode: 'caminhar' });
     }
   }
   return vps;
+}
+
+/** Pontos de vista refinados ficam guardados no navegador para a próxima visita. */
+const vpKey = (url: string | null, gen: string) => `cjx-vps:${url}:${gen}`;
+export function cachedViewpoints(url: string | null, gen: string): Viewpoint[] | null {
+  try {
+    const raw = localStorage.getItem(vpKey(url, gen));
+    return raw ? (JSON.parse(raw) as Viewpoint[]) : null;
+  } catch {
+    return null;
+  }
+}
+export function cacheViewpoints(url: string | null, gen: string, vps: Viewpoint[]) {
+  try {
+    localStorage.setItem(vpKey(url, gen), JSON.stringify(vps));
+  } catch {
+    /* armazenamento indisponível: segue sem cache */
+  }
 }

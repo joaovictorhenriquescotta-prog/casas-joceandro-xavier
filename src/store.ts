@@ -84,10 +84,10 @@ export const useStore = create<State>((set, get) => ({
 
   set: (p) => set(p),
   setTime: (time) => {
-    // à noite, acende automaticamente as luzes externas e da sala
+    // à noite, acende automaticamente todas as luzes
     if (time === 'noite') {
       const lights = { ...get().lights };
-      for (const k of Object.keys(lights)) if (/externa|fachada|estar|jardim/.test(k)) lights[k] = true;
+      for (const k of Object.keys(lights)) lights[k] = true; // ao anoitecer, a casa toda acesa, como nas imagens
       set({ time, lights });
     } else set({ time });
   },

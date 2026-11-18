@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useStore } from './store';
 import { loadModel, type LoadedModel } from './three/useModel';
-import { buildViewpoints } from './three/rooms';
+import { buildViewpoints, cachedViewpoints } from './three/rooms';
 import { fetchManifest } from './lib/manifest';
 import { readSharedConfig } from './lib/share';
 import { Intro } from './ui/Intro';
@@ -42,7 +42,7 @@ function Visit() {
         return loadModel(url, onProgress);
       })
       .then((m) => {
-        set({ meta: m.meta, viewpoints: buildViewpoints(m.meta) });
+        set({ meta: m.meta, viewpoints: cachedViewpoints(useStore.getState().modelUrl, m.meta.generatedAt) ?? buildViewpoints(m.meta) });
         setModel(m);
       })
       .catch((e) => setError(String(e?.message ?? e)));

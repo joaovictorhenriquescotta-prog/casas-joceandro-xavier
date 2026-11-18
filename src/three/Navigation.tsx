@@ -6,7 +6,7 @@ import { MeshBVH, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } fro
 import { useStore } from '../store';
 import { cameraState, physics } from './runtime';
 import { input } from './input';
-import { roomAt } from './rooms';
+import { buildViewpoints, cacheViewpoints, roomAt, type FreeProbe } from './rooms';
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,6 +26,33 @@ const capPoint = new THREE.Vector3();
 const down = new THREE.Vector3(0, -1, 0);
 const ray = new THREE.Raycaster();
 ray.firstHitOnly = true;
+
+/** Com a BVH pronta, refaz os pontos de vista internos evitando móveis e paredes no caminho do olhar. */
+function refineViewpoints() {
+  const st = useStore.getState();
+  if (!st.meta) return;
+  const o = new THREE.Vector3(), d = new THREE.Vector3();
+  const probe: FreeProbe = (x, y, z, dx, dy, dz, max) => {
+    ray.set(o.set(x, y, z), d.set(dx, dy, dz));
+    ray.far = max;
+    const h = ray.intersectObjects(physics.colliders, false)[0];
+    return h ? h.distance : max;
+  };
+  const t0 = performance.now();
+  // faces dos dois lados contam: um ponto "dentro" de uma parede enxerga só versos de faces
+  const sides = new Map<THREE.Material, THREE.Side>();
+  for (const m of physics.colliders) for (const mat of [m.material].flat()) if (!sides.has(mat)) { sides.set(mat, mat.side); mat.side = THREE.DoubleSide; }
+  let vps;
+  try {
+    vps = buildViewpoints(st.meta, 1.6, probe);
+  } finally {
+    for (const [mat, side] of sides) mat.side = side;
+  }
+  ray.far = Infinity;
+  st.set({ viewpoints: vps });
+  cacheViewpoints(st.modelUrl, st.meta.generatedAt, vps);
+  if (import.meta.env.DEV) console.info('[pontos de vista] refinados em', Math.round(performance.now() - t0), 'ms');
+}
 
 interface Flight {
   curve: THREE.CatmullRomCurve3;
@@ -61,7 +88,10 @@ export function Navigation() {
       const t0 = performance.now();
       while (list.length && performance.now() - t0 < 12) ensureBVH([list.pop()!]);
       if (list.length) requestAnimationFrame(step);
-      else physics.ready = true;
+      else {
+        physics.ready = true;
+        refineViewpoints();
+      }
     };
     step();
     return () => {

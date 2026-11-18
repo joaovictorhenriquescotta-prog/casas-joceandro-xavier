@@ -235,6 +235,8 @@ function analyse(model: LoadedModel) {
         if (h && (!h.face || h.face.normal.clone().transformDirection(h.object.matrixWorld).y > 0.7)) pts.push(h.point);
       }
   }
+  const hb = model.meta.houseBounds;
+  const center = new THREE.Vector3((hb.min[0] + hb.max[0]) / 2, 0, (hb.min[2] + hb.max[2]) / 2);
   const dirs = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)];
   const cast = (p: THREE.Vector3, d: THREE.Vector3, targets: THREE.Mesh[], far: number): WallHit | null => {
     rc.set(new THREE.Vector3(p.x, p.y + 0.6, p.z), d);
@@ -251,9 +253,12 @@ function analyse(model: LoadedModel) {
   const along: { p: THREE.Vector3; w: WallHit; facade: boolean }[] = [];
   const open: { p: THREE.Vector3; clear: number }[] = [];
   for (const p of pts) {
-    // ponto dentro do lote: cercado por muro/casa em ao menos 3 direções
+    // ponto dentro do lote: cercado por muro/casa e sem muro entre ele e as casas
     const hits = dirs.map((d) => cast(p, d, solids, 30));
     if (hits.filter(Boolean).length < 3) continue;
+    const toC = center.clone().setY(p.y).sub(p);
+    const dc = toC.length();
+    if (dc > 0.5 && cast(p, toC.normalize(), walls, dc)) continue;
     const nearest = hits.reduce<WallHit | null>((a, h) => (h && (!a || h.dist < a.dist) ? h : a), null)!;
     const isWall = walls.length > 0 && dirs.some((d, i) => hits[i] && hits[i]!.dist === nearest.dist && cast(p, d, walls, nearest.dist + 0.01));
     if (nearest.dist < 0.5) along.push({ p, w: nearest, facade: !isWall });
@@ -281,7 +286,7 @@ export function Landscape({ model }: { model: LoadedModel }) {
     // chão ao redor do terreno, para o lote não flutuar no vazio
     const groundTex = canvasTexture(256, (g, s) => {
       const r = mulberry(17);
-      g.fillStyle = '#6f7552';
+      g.fillStyle = '#66734a';
       g.fillRect(0, 0, s, s);
       for (let i = 0; i < 2600; i++) {
         const k = r();
@@ -314,7 +319,7 @@ export function Landscape({ model }: { model: LoadedModel }) {
       const s = 0.85 + rand() * 0.35;
       sc.set(s, s * (0.9 + rand() * 0.25), s);
       shrubs.setMatrixAt(i, m4.compose(pos, q, sc));
-      shrubs.setColorAt(i, tint.setHSL(0.27 + rand() * 0.05, 0.35, 0.42 + rand() * 0.12));
+      shrubs.setColorAt(i, tint.setHSL(0.2 + rand() * 0.06, 0.3, 0.66 + rand() * 0.12));
     });
     shrubs.count = hedge.length;
     shrubs.castShadow = true;

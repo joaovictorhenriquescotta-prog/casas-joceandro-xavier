@@ -50,7 +50,7 @@ export function Experience({ model }: { model: LoadedModel }) {
       <EffectComposer multisampling={0} enableNormalPass={false}>
         {quality === 'alta' ? <N8AO aoRadius={0.9} distanceFalloff={0.8} intensity={2.2} halfRes quality="medium" /> : <></>}
         <Bloom mipmapBlur intensity={0.55} luminanceThreshold={1.1} luminanceSmoothing={0.25} />
-        <ToneMapping mode={ToneMappingMode.AGX} />
+        <ToneMapping mode={ToneMappingMode.NEUTRAL} />
         <Vignette darkness={0.32} offset={0.25} />
         <SMAA />
       </EffectComposer>

@@ -10,6 +10,10 @@ export interface TimeParams {
   hemiSky: THREE.Color;
   hemiGround: THREE.Color;
   hemiIntensity: number;
+  /** cores do ambiente que ilumina por reflexo (céu, horizonte, chão) */
+  envTop: THREE.Color;
+  envHorizon: THREE.Color;
+  envGround: THREE.Color;
   envIntensity: number;
   exposure: number;
   turbidity: number;
@@ -25,28 +29,34 @@ export const TIME_KEYS: TimeOfDay[] = ['manha', 'tarde', 'noite'];
 export const PRESETS: Record<TimeOfDay, TimeParams> = {
   manha: {
     sunAzimuth: 55, sunElevation: 36, sunColor: c('#fff0dc'), sunIntensity: 3.4,
-    hemiSky: c('#e4ecf5'), hemiGround: c('#8c8272'), hemiIntensity: 0.8,
-    envIntensity: 0.6, exposure: 1.05, turbidity: 5, rayleigh: 1.1, stars: 0, night: 0,
+    hemiSky: c('#e4ecf5'), hemiGround: c('#8c8272'), hemiIntensity: 0.45,
+    envTop: c('#9fb8d6'), envHorizon: c('#eef0ee'), envGround: c('#a69f92'),
+    envIntensity: 0.6, exposure: 1.0, turbidity: 5, rayleigh: 1.1, stars: 0, night: 0,
   },
   tarde: {
     sunAzimuth: -48, sunElevation: 13, sunColor: c('#ffb06a'), sunIntensity: 2.8,
-    hemiSky: c('#ffd7ad'), hemiGround: c('#6e5c4b'), hemiIntensity: 0.65,
-    envIntensity: 0.4, exposure: 1.12, turbidity: 9, rayleigh: 2.6, stars: 0, night: 0.15,
+    hemiSky: c('#ffd7ad'), hemiGround: c('#6e5c4b'), hemiIntensity: 0.35,
+    envTop: c('#8fa3c2'), envHorizon: c('#f2d4b0'), envGround: c('#9c8f7f'),
+    envIntensity: 0.5, exposure: 1.05, turbidity: 9, rayleigh: 2.6, stars: 0, night: 0.15,
   },
   noite: {
     sunAzimuth: -70, sunElevation: -14, sunColor: c('#9fb4ff'), sunIntensity: 0.0,
-    hemiSky: c('#22305a'), hemiGround: c('#0b0b10'), hemiIntensity: 0.18,
-    envIntensity: 0.14, exposure: 1.35, turbidity: 2, rayleigh: 0.6, stars: 1, night: 1,
+    hemiSky: c('#3a4366'), hemiGround: c('#17161a'), hemiIntensity: 0.3,
+    envTop: c('#18203a'), envHorizon: c('#3a3a4a'), envGround: c('#1c1b1e'),
+    envIntensity: 0.35, exposure: 1.55, turbidity: 2, rayleigh: 0.6, stars: 1, night: 1,
   },
 };
 
 const tmp: TimeParams = structuredClone({
   ...PRESETS.manha,
-  sunColor: undefined, hemiSky: undefined, hemiGround: undefined,
+  sunColor: undefined, hemiSky: undefined, hemiGround: undefined, envTop: undefined, envHorizon: undefined, envGround: undefined,
 }) as unknown as TimeParams;
 tmp.sunColor = new THREE.Color();
 tmp.hemiSky = new THREE.Color();
 tmp.hemiGround = new THREE.Color();
+tmp.envTop = new THREE.Color();
+tmp.envHorizon = new THREE.Color();
+tmp.envGround = new THREE.Color();
 
 /** t contínuo: 0 = manhã, 1 = tarde, 2 = noite */
 export function paramsAt(t: number): TimeParams {
