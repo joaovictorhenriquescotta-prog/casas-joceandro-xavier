@@ -1,0 +1,13 @@
+{
+  "current": "v1",
+  "versions": [
+    {
+      "id": "v1",
+      "url": "/models/v1/model.glb",
+      "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
+      "createdAt": "2026-11-18T00:36:00Z",
+      "status": "publicado",
+      "notes": "Primeira versão importada do SketchUp"
+    }
+  ]
+}
