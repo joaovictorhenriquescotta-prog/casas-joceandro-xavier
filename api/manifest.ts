@@ -1,5 +1,5 @@
 import { del } from '@vercel/blob';
-import { initialManifest, isAdmin, json, readManifest, writeManifest, type ModelVersion } from './_lib';
+import { initialManifest, isAdmin, json, readManifest, writeManifest, type ModelVersion } from './_lib.js';
 
 /** Manifesto público das versões do modelo (a visita lê daqui). */
 export async function GET(req: Request) {

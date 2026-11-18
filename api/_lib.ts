@@ -26,8 +26,11 @@ export interface Manifest {
 export const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
+/** Senha configurada na Vercel, sem espaços ou quebras de linha coladas sem querer. */
+const adminPassword = () => (process.env.ADMIN_PASSWORD ?? '').trim();
+
 const secret = () => {
-  const p = process.env.ADMIN_PASSWORD;
+  const p = adminPassword();
   if (!p) throw new Error('ADMIN_PASSWORD não configurada na Vercel');
   return `${p}:${process.env.ADMIN_SECRET ?? 'cjx'}`;
 };
@@ -41,7 +44,7 @@ export function issueToken() {
 
 export function checkPassword(pw: unknown) {
   if (typeof pw !== 'string') return false;
-  const a = Buffer.from(pw), b = Buffer.from(process.env.ADMIN_PASSWORD ?? '');
+  const a = Buffer.from(pw.trim()), b = Buffer.from(adminPassword());
   return a.length === b.length && b.length > 0 && timingSafeEqual(a, b);
 }
 

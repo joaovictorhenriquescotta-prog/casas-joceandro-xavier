@@ -1,5 +1,5 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { json, verifyToken } from './_lib';
+import { json, verifyToken } from './_lib.js';
 
 /**
  * Autoriza o envio direto do navegador para o Vercel Blob (arquivos grandes não passam

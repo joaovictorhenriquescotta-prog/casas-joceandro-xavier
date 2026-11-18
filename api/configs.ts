@@ -1,6 +1,6 @@
 import { put, list } from '@vercel/blob';
 import { randomBytes } from 'node:crypto';
-import { json } from './_lib';
+import { json } from './_lib.js';
 
 /** Configurações de personalização salvas pelos clientes (link curto). */
 export async function POST(req: Request) {
