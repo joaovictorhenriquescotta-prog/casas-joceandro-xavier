@@ -166,16 +166,11 @@ export function buildViewpoints(meta: SceneMeta, eye = 1.6, probe?: FreeProbe): 
         const stand = coarse.filter(standing);
         if (stand.length) pool = stand;
       }
-      const c = { x: (r.min[0] + r.max[0]) / 2, z: (r.min[2] + r.max[2]) / 2 };
       if (r.type === 'estar') {
         const k = r.kitchen ? { x: r.kitchen[0], z: r.kitchen[1] } : best(pool, (p) => -Math.hypot(p.x - r.min[0], p.z - r.min[2]))!;
         const dk = (p: { x: number; z: number }) => Math.hypot(p.x - k.x, p.z - k.z);
         // sala: região do piso mais afastada da cozinha
         const far = samples.filter((p) => dk(p) > 3.5);
-        const living = far.length
-          ? { x: far.reduce((a, p) => a + p.x, 0) / far.length, z: far.reduce((a, p) => a + p.z, 0) / far.length }
-          : c;
-        const dl = (p: { x: number; z: number }) => Math.hypot(p.x - living.x, p.z - living.z);
         const sala = longView(pool, far.length ? far : samples, (p) => Math.min(p.clear, 1) * 0.6 - Math.max(0, 1.6 - dk(p)) * 2);
         vps.push({ id: `${r.id}-sala`, label: 'Sala de estar e jantar', group: h.label, position: [sala.p.x, r.floorY + eye, sala.p.z], target: [sala.t.x, r.floorY + 1.2, sala.t.z], room: r.id, mode: 'caminhar' });
         const coz = best(pool, (p) => -Math.abs(dk(p) - 2.6) + Math.min(p.clear, 1.2) * 0.8 + vis(p, k, r.floorY + 0.95, 0.9) * 6 + cone(p, k) * 2)!;

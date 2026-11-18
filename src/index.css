@@ -180,3 +180,45 @@ input { font: inherit; }
   .swatch-grid { grid-template-columns: repeat(7, 1fr); }
   .hint { bottom: 96px; }
 }
+
+/* ------------------------------ Área administrativa ------------------------------ */
+.admin { position: fixed; inset: 0; overflow-y: auto; touch-action: auto; padding: 32px max(16px, calc(50% - 460px)) 64px; background: radial-gradient(1200px 600px at 80% -10%, #2a241c 0%, var(--bg) 60%); }
+.admin-center { display: grid; place-items: center; }
+.admin h1 { font-size: 34px; font-weight: 500; margin: 2px 0 0; }
+.admin h2 { font-size: 18px; margin: 0 0 6px; }
+.admin h3 { font-size: 15px; margin: 18px 0 10px; }
+.admin-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.admin-card { background: var(--glass-strong); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 18px; }
+.admin-card .muted { line-height: 1.5; }
+.admin-login { width: min(380px, 100%); display: flex; flex-direction: column; gap: 14px; }
+.admin .field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+.admin .field input { background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; color: var(--text); }
+.admin .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.admin-files { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
+.admin-drop { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 18px; border: 1px dashed rgba(255,255,255,.25); border-radius: 12px; cursor: pointer; }
+.admin-drop:hover { border-color: var(--accent); }
+.admin-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.admin-warn { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: rgba(201,162,107,.12); border: 1px solid rgba(201,162,107,.4); line-height: 1.5; }
+.admin-error { color: #ff9b8a; margin: 8px 0; }
+.admin-msg { padding: 12px 16px; border-radius: 10px; background: rgba(120,190,140,.14); border: 1px solid rgba(120,190,140,.4); margin-bottom: 16px; cursor: pointer; }
+.admin-progress { margin: 14px 0; }
+.admin-progress .row { justify-content: space-between; }
+.admin-progress .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; margin: 8px 0; }
+.admin-progress .bar i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.admin-log { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.admin-log ul { max-height: 220px; overflow: auto; padding-left: 18px; }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.admin-stats div { display: flex; flex-direction: column; padding: 12px; border-radius: 10px; background: rgba(255,255,255,.04); }
+.admin-stats b { font-size: 22px; font-weight: 600; }
+.admin-stats span { color: var(--muted); font-size: 12px; }
+.admin-checks { list-style: none; padding: 0; margin: 14px 0; display: flex; flex-direction: column; gap: 8px; line-height: 1.45; }
+.admin-checks li b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; margin-right: 6px; }
+.admin-checks .ok b { background: rgba(120,190,140,.25); }
+.admin-checks .aviso b { background: rgba(201,162,107,.35); }
+.admin-checks .erro b { background: rgba(255,120,100,.35); }
+.admin-table { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.admin-ver { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; padding: 14px; border-radius: 12px; background: rgba(255,255,255,.035); border: 1px solid transparent; }
+.admin-ver.publicado { border-color: rgba(201,162,107,.5); }
+.admin .tag { font-size: 11px; padding: 2px 8px; border-radius: 99px; margin-left: 6px; background: rgba(255,255,255,.1); }
+.admin .tag.publicado { background: var(--accent); color: var(--accent-ink); }
+.admin .tag.previa { background: rgba(120,170,220,.3); }
