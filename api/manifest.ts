@@ -1,5 +1,5 @@
 import { del } from '@vercel/blob';
-import { initialManifest, isAdmin, json, readManifest, writeManifest, type ModelVersion } from './_lib.js';
+import { hasBlob, initialManifest, isAdmin, json, readManifest, writeManifest, type ModelVersion } from './_lib.js';
 
 /** Manifesto público das versões do modelo (a visita lê daqui). */
 export async function GET(req: Request) {
@@ -20,6 +20,7 @@ type Action =
 /** Operações do painel administrativo (exigem login). */
 export async function POST(req: Request) {
   if (!isAdmin(req)) return json({ error: 'Acesso restrito ao administrador.' }, 401);
+  if (!hasBlob()) return json({ error: 'Conecte um Blob store ao projeto na Vercel (Storage → Blob) e faça um novo deploy.' }, 503);
   const a = (await req.json()) as Action;
   const m = (await readManifest()) ?? (await initialManifest(new URL(req.url).origin));
   const find = (id: string) => m.versions.find((v) => v.id === id);

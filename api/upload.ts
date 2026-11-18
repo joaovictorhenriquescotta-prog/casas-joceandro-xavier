@@ -1,11 +1,12 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { json, verifyToken } from './_lib.js';
+import { hasBlob, json, verifyToken } from './_lib.js';
 
 /**
  * Autoriza o envio direto do navegador para o Vercel Blob (arquivos grandes não passam
  * pela função). Só o administrador recebe o token de envio.
  */
 export async function POST(req: Request) {
+  if (!hasBlob()) return json({ error: 'Conecte um Blob store ao projeto na Vercel (Storage → Blob) e faça um novo deploy.' }, 503);
   const body = (await req.json()) as HandleUploadBody;
   try {
     const res = await handleUpload({

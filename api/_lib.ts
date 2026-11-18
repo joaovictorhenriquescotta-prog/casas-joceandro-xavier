@@ -62,7 +62,11 @@ export const isAdmin = (req: Request) => verifyToken(req.headers.get('authorizat
  * Cada alteração grava um manifesto novo (manifests/<data>.json); o mais recente vale.
  * Assim nenhuma versão anterior se perde e não há problema de cache de CDN.
  */
+export const hasBlob = () => !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+
 export async function readManifest(): Promise<Manifest | null> {
+  // sem Blob conectado: a visita usa o manifesto que acompanha o código
+  if (!hasBlob()) return null;
   const { blobs } = await list({ prefix: 'manifests/', limit: 1000 });
   if (!blobs.length) return null;
   blobs.sort((a, b) => b.pathname.localeCompare(a.pathname));
