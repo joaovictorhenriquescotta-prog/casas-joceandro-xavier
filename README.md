@@ -7,7 +7,48 @@ modelo do SketchUp. Funciona no navegador do celular, tablet ou computador, sem 
 só converte materiais, organiza as malhas e comprime o arquivo. Paisagismo e luminárias externas (que aparecem nas
 imagens de referência e não no modelo) são acrescentados pelo app, posicionados lendo o gramado e os muros do modelo.
 
-## O que a visita oferece
+## Visita cinematográfica ("Iniciar visita")
+
+O botão "Iniciar visita" abre uma apresentação no estilo de vídeo de drone, feita com as renderizações:
+
+1. **Abertura:** sobrevoo da vista aérea → aproximação e descida pela esquina → fachada frontal → o drone sobe até o
+   lote inteiro e desce até a planta (com faixas de cinema e título). Dá para pular.
+2. **Planta humanizada interativa:** cada ambiente é destacado ao passar o mouse ou tocar (no celular, 1º toque mostra o
+   nome e a área, 2º toque entra). No celular em pé, a planta fica girada para ocupar a tela.
+3. **Entrada no ambiente:** a câmera voa até o cômodo, desce e inclina em perspectiva sobre a planta. Onde há render
+   (fachada e garagem), ela segue avançando e "atravessa" para a renderização em tela cheia, com movimento lento de
+   câmera; se houver várias, elas passam em sequência.
+4. **Navegação:** anterior / próximo (também pelas setas do teclado ou deslizando o dedo), voltar à planta, voltar à
+   fachada, encerrar. Em cada cômodo sem render há "Ver este ambiente em 3D", que abre o modelo 3D já naquele cômodo.
+
+Como funciona por dentro (`src/tour/`):
+
+- `Tour.tsx`: sequências e interface. `camera.ts`: câmera de drone sobre a planta em CSS 3D (enquadramento, inclinação,
+  voos com aceleração/frenagem e limites para nunca mostrar além da imagem). `stage.ts`: renders em tela cheia sem
+  distorção (cobre a tela na proporção original e só aproxima/desliza), transições de avanço/recuo/subida.
+- As áreas clicáveis da planta **vêm do modelo 3D** (pisos `PISO - …` do `model.meta.json`), projetadas sobre a imagem
+  da planta: `node scripts/build-tour-plan.mjs` gera `src/config/tourPlan.generated.ts`. A calibração (4 números no
+  topo do script) só muda se a imagem da planta for trocada.
+- Imagens em `public/visita/` (WebP). Só são baixadas depois do clique; a tela inicial não fica mais pesada.
+  O modelo 3D (~54 MB) passou a ser baixado só quando alguém abre o modelo interativo.
+- Sem dependências novas: React + CSS 3D + Web Animations. Respeita "reduzir movimento" do sistema e desliga o desfoque
+  em aparelhos fracos.
+
+**Acrescentar uma renderização** (ex.: render da sala):
+
+```bash
+node scripts/visita-imagem.mjs "C:/caminho/Casa-Joceandro-Sala-8K.png" sala
+```
+
+Depois, em `src/config/tour.ts`, acrescente `{ src: v('sala'), caption: 'Sala de estar' }` em `ROOM_SHOTS.estar`
+(vale para as duas casas; para uma casa só, use a chave `'casa1-estar'`). A partir daí, ao entrar no ambiente o drone
+atravessa para o render em vez de ficar na planta. Opcional: `from`/`to` controlam o movimento de câmera da cena.
+
+O modelo 3D interativo continua no app: link "Explorar o modelo 3D interativo" na tela inicial, botão "Modelo 3D
+interativo" na planta e "Ver este ambiente em 3D" nos cômodos. Na prévia do painel (`?modelo=`), "Iniciar visita"
+continua abrindo o modelo 3D.
+
+## Modelo 3D interativo
 
 - Caminhada em primeira pessoa (mouse, teclado, toque e joystick), colisão com paredes e móveis, altura do olhar ajustável.
 - Menu de ambientes com os nomes reais do projeto e transições de câmera; volta à fachada a qualquer momento.

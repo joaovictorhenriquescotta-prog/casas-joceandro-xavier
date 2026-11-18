@@ -88,7 +88,8 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
   `Navigation.tsx` (órbita, caminhada com colisão por BVH, voos de câmera, refino dos pontos de vista com raycast
   quando a BVH fica pronta, cache em localStorage), `rooms.ts` (pontos de vista automáticos por linha de visão livre),
   `customize.ts`, `useModel.ts`, `runtime.ts`.
-- `src/ui/`: Intro, Hud, RoomsPanel, LightsPanel, CustomizePanel, InfoPanel, Minimap, Joystick.
+- `src/ui/`: Intro, Hud, RoomsPanel, LightsPanel, CustomizePanel, InfoPanel, Minimap, Joystick, Gallery.
+- `src/tour/`: visita cinematográfica (`Tour.tsx`, `camera.ts`, `stage.ts`, `tour.css`); config em `src/config/tour.ts`.
 - `src/config/`: `project.ts` (textos), `finishes.ts` (acabamentos, categorias, paletas, elementos de cor).
 - `src/admin/`: `Admin.tsx` (login, upload, validação, prévia, publicação, histórico), `processWorker.ts`
   (processa o GLB no navegador, ~20 s), `validate.ts` (compara com a versão no ar: ambientes, áreas, dimensões, portas).
@@ -138,6 +139,19 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - Conferir no celular (desempenho, joystick, layout) e ajustar qualidade automática.
 - Mapear o material da faixa do muro e revisar a lista de elementos de cor com ela.
 - Reduzir chamadas de desenho; possivelmente um modo "baixa" mais agressivo para celulares.
+
+## 10.1 Visita cinematográfica (18/11/2026)
+
+- "Iniciar visita" abre `src/tour/Tour.tsx` (phase `'tour'`), não mais o 3D. Fluxo: abertura de drone com renders
+  (aérea → principal → frontal → lote) → planta humanizada interativa → descida em perspectiva até o cômodo → render em
+  tela cheia onde existe (fachada, garagem) → anterior/próximo, planta, fachada, encerrar. Detalhes no README.
+- Áreas clicáveis geradas do modelo: `scripts/build-tour-plan.mjs` → `src/config/tourPlan.generated.ts` (calibração
+  px = 1273 + 202,7·x, py = 3863 + 202,7·z sobre `Planta-Humanizada-Detalhe-8K.png`, conferida nas 12 salas).
+- Associação ambiente → renders: `src/config/tour.ts` (`ROOM_SHOTS`); imagens via `scripts/visita-imagem.mjs` em
+  `public/visita/`. **Só existem renders externos e da garagem**; os cômodos internos aparecem pela planta humanizada
+  em perspectiva + botão "Ver este ambiente em 3D". Os renders da garagem mostram a Casa 1 e são usados nas duas.
+- O modelo 3D agora só baixa quando pedido (`want3d` em `App.tsx`); `pendingRoom` no store abre o 3D direto no cômodo.
+- Origem das imagens: `JOCEANDRO\renders\FINAIS\` (8K). Os originais não são alterados.
 
 ## 10.2 Publicação autorizada
 

@@ -19,8 +19,11 @@ export interface Viewpoint {
 }
 
 interface State {
-  phase: 'intro' | 'carregando' | 'visita';
+  /** intro = tela inicial · tour = visita cinematográfica · carregando/visita = modelo 3D interativo */
+  phase: 'intro' | 'tour' | 'carregando' | 'visita';
   progress: number;
+  /** ambiente (id do modelo, ex.: casa1-suite) para abrir direto ao entrar no modelo 3D a partir da visita */
+  pendingRoom: string | null;
   meta: SceneMeta | null;
   modelUrl: string | null;
   modelVersion: string | null;
@@ -59,6 +62,7 @@ interface State {
 export const useStore = create<State>((set, get) => ({
   phase: 'intro',
   progress: 0,
+  pendingRoom: null,
   meta: null,
   modelUrl: null,
   modelVersion: null,

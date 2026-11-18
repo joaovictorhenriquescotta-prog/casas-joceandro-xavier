@@ -12,33 +12,49 @@ export function Intro({ ready, error }: { ready: boolean; error: string | null }
   const progress = useStore((s) => s.progress);
   const set = useStore((s) => s.set);
   const shared = sharedName();
-  const loading = phase === 'carregando';
+  const loading3d = phase === 'carregando';
+  // prévia do painel administrativo (?modelo=): o botão principal continua abrindo o modelo 3D
+  const adminPreview = new URLSearchParams(location.search).has('modelo');
+  const open3d = () => set({ phase: 'carregando' });
 
   return (
     <div className="intro">
       <div className="intro-bg" style={{ backgroundImage: 'url(/hero.jpg)' }} />
       <div className="intro-shade" />
       <div className="intro-content">
-        <p className="eyebrow">Visita virtual 3D</p>
+        <p className="eyebrow">Visita virtual</p>
         <h1>{PROJECT.name}</h1>
         <p className="intro-sub">{PROJECT.tagline}</p>
         <p className="intro-loc">{PROJECT.location}</p>
         {shared && <p className="intro-shared">Configuração personalizada: <strong>{shared}</strong></p>}
-        {error ? (
+        <div className="intro-actions">
+          <button
+            className="btn-primary"
+            onClick={adminPreview ? open3d : () => set({ phase: 'tour' })}
+            disabled={adminPreview && loading3d && !ready}
+          >
+            {adminPreview && loading3d && !ready ? `Carregando ${Math.round(progress * 100)}%` : 'Iniciar visita'}
+          </button>
+          <button className="btn-secondary" onClick={() => setGallery(true)}>
+            <Icon.images /> Ver imagens
+          </button>
+        </div>
+        {error && loading3d ? (
           <p className="intro-error">Não foi possível carregar o modelo 3D. {error}</p>
         ) : (
-          <div className="intro-actions">
-            <button className="btn-primary" onClick={() => set({ phase: 'carregando' })} disabled={loading && !ready}>
-              {loading && !ready ? `Carregando ${Math.round(progress * 100)}%` : 'Iniciar visita'}
+          !adminPreview && (
+            <button className="intro-3d" onClick={open3d} disabled={loading3d}>
+              {loading3d
+                ? `Carregando o modelo 3D… ${Math.round(progress * 100)}%`
+                : shared ? 'Ver sua configuração no modelo 3D interativo →' : 'Explorar o modelo 3D interativo →'}
             </button>
-            <button className="btn-secondary" onClick={() => setGallery(true)}>
-              <Icon.images /> Ver imagens
-            </button>
+          )
+        )}
+        {loading3d && (
+          <div className="intro-progress" aria-hidden>
+            <span style={{ transform: `scaleX(${ready ? 1 : progress})` }} />
           </div>
         )}
-        <div className="intro-progress" aria-hidden>
-          <span style={{ transform: `scaleX(${ready ? 1 : progress})` }} />
-        </div>
         <p className="intro-hint">Funciona no navegador do celular, tablet ou computador. Não é preciso instalar nada.</p>
       </div>
       {gallery && <Gallery onClose={closeGallery} />}
