@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import type { SceneMeta } from '../pipeline/meta';
+import { lookFor } from '../config/renderLook';
 
 export interface LoadedModel {
   scene: THREE.Group;
@@ -43,6 +44,14 @@ function prepare(gltf: GLTF): LoadedModel {
     for (const m of mats as THREE.MeshStandardMaterial[]) {
       materials.set(m.name, m);
       m.userData.originalName = m.name;
+      if (!m.userData.lookApplied) {
+        // acabamentos aproximados aos renders (src/config/renderLook.ts)
+        m.userData.lookApplied = true;
+        const look = lookFor(m.name);
+        if (look?.color) m.color.set(look.color);
+        if (look?.roughness !== undefined) m.roughness = look.roughness;
+        if (look?.env !== undefined) m.envMapIntensity = look.env;
+      }
       if (m.map) m.map.anisotropy = 8;
       if (m.transparent) mesh.renderOrder = 2;
     }

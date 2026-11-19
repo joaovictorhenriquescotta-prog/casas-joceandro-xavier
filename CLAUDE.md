@@ -173,3 +173,13 @@ npx tsc -p tsconfig.api.json   # checagem de tipos das funções
 
 Arquivos grandes de origem (GLB original e texturas) não estão no repositório (`model-src/` no .gitignore); a cópia
 original do GLB está nos arquivos do projeto no Claude.
+
+## 10.3 Modelo 3D mais próximo dos renders (19/11/2026)
+
+- `src/config/renderLook.ts`, aplicado em `useModel.ts` ao carregar (vira o "original" do 3D): TINTA 01 laranja
+  (#d9843f, como nos renders), paredes da Casa 1 cinza quente e da Casa 2 off-white, pisos e bancadas mais polidos.
+  Só cor/brilho de materiais existentes; geometria intocada.
+- Luz interna branca e mais clara (`Atmosphere.tsx`); período inicial passou a ser manhã (`store.ts`).
+- Paisagismo: a cerca viva não fica a menos de 0,7 m de um cômodo (atravessava a parede do banho da suíte).
+- O GLB `TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb` (17/11 21:15) é o mesmo da v1; o .skp foi salvo depois (18/11 22:55).
+  Se o SketchUp mudou, é preciso exportar um GLB novo e enviar pelo /admin.

@@ -73,7 +73,7 @@ export const useStore = create<State>((set, get) => ({
   flyTo: null,
   viewpoints: [],
 
-  time: 'tarde',
+  time: 'manha',
   lights: {},
   doors: {},
 

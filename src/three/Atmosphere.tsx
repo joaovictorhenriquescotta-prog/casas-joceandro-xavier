@@ -6,8 +6,8 @@ import { useStore } from '../store';
 import { TIME_KEYS, paramsAt, sunDirection } from './timeOfDay';
 import { timeState } from './runtime';
 
-const INTERIOR_SKY = new THREE.Color('#fff3e4');
-const INTERIOR_GROUND = new THREE.Color('#b9ad9c');
+const INTERIOR_SKY = new THREE.Color('#ffffff');
+const INTERIOR_GROUND = new THREE.Color('#e6e1d9');
 
 /*
  * Ambiente de iluminação indireta (IBL) gerado a partir de um degradê céu/horizonte/chão.
@@ -101,9 +101,9 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
     const k = timeState.interior;
     hemi.current.color.copy(p.hemiSky).lerp(INTERIOR_SKY, k * (1 - p.night));
     hemi.current.groundColor.copy(p.hemiGround).lerp(INTERIOR_GROUND, k * (1 - p.night));
-    hemi.current.intensity = THREE.MathUtils.lerp(p.hemiIntensity, (1 - p.night) * 0.7 + 0.05, k);
-    gl.toneMappingExposure = p.exposure * (1 + 0.15 * k);
-    scene.environmentIntensity = p.envIntensity * (1 - 0.65 * k);
+    hemi.current.intensity = THREE.MathUtils.lerp(p.hemiIntensity, (1 - p.night) * 1.15 + 0.05, k);
+    gl.toneMappingExposure = p.exposure * (1 + 0.2 * k * (1 - p.night));
+    scene.environmentIntensity = p.envIntensity * (1 - 0.35 * k);
     if (sky.current?.material?.uniforms) {
       const u = sky.current.material.uniforms;
       u.sunPosition.value.copy(dir).multiplyScalar(1000);

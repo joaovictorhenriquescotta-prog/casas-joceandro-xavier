@@ -306,7 +306,13 @@ export function Landscape({ model }: { model: LoadedModel }) {
     group.add(ground);
 
     // cerca viva ao longo dos muros internos
-    const hedge = spaced(along.filter((a) => !a.facade), 0.55);
+    // arbustos a menos de 0,7 m de um cômodo atravessariam a parede (ex.: faixa estreita atrás do banho da suíte)
+    const nearRoom = (p: THREE.Vector3) =>
+      model.meta.rooms.some((r) => r.type !== 'garagem' && p.x > r.min[0] - 0.7 && p.x < r.max[0] + 0.7 && p.z > r.min[2] - 0.7 && p.z < r.max[2] + 0.7);
+    const hedge = spaced(
+      along.filter((a) => !a.facade && !nearRoom(a.p.clone().addScaledVector(a.w.normal, -(a.w.dist - 0.32)))),
+      0.55,
+    );
     const leaf = leafTexture();
     const shrubMat = new THREE.MeshStandardMaterial({ map: leaf, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 0.85, color: '#ffffff' });
     const shrubGeo = shrubGeometry();
