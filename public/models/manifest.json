@@ -1,13 +1,13 @@
 {
-  "current": "v6",
+  "current": "v7",
   "versions": [
     {
-      "id": "v6",
-      "url": "/models/v6/model.glb",
+      "id": "v7",
+      "url": "/models/v7/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
-      "createdAt": "2026-11-19T15:00:00Z",
+      "createdAt": "2026-11-19T15:10:00Z",
       "status": "publicado",
-      "notes": "GLB de 19/11 11:56 (paredes pintadas no SketchUp); sem vegetação, decorativos otimizados, paredes preservadas"
+      "notes": "GLB de 19/11 11:56; porcelanato Cristallo do banheiro deixou de ser tratado como vidro"
     }
   ]
 }

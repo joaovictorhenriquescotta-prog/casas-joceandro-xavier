@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T14:58:34.129Z",
+  "generatedAt": "2026-11-19T15:11:13.809Z",
   "houseBounds": {
     "min": [
       5.007775603580114,
@@ -26207,13 +26207,6 @@
       "name": "CALACATAARMANI",
       "original": "CALACATAARMANI",
       "element": "bancadas",
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": ".Cristallo Bianco Lux\n ",
-      "original": ".Cristallo Bianco Lux\n ",
-      "element": "vidros",
       "surface": null,
       "room": null
     },

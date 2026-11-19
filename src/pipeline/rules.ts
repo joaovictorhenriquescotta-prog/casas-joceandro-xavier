@@ -33,7 +33,8 @@ export const ROOM_TYPES: { id: string; label: string; match: (n: string) => bool
 ];
 
 const RULES: { re: RegExp; element: ElementId; metallic?: number; roughness?: number; glass?: boolean }[] = [
-  { re: /vidro|glass|translucent|cristal/i, element: 'vidros', roughness: 0.05, glass: true },
+  // "cristal(?!lo)": ".Cristallo Bianco Lux" é porcelanato do banheiro, não vidro (ficava transparente)
+  { re: /vidro|glass|translucent|cristal(?!lo)/i, element: 'vidros', roughness: 0.05, glass: true },
   { re: /^LR_LED|^\.LED$|Fixture Light/i, element: null, roughness: 0.4 },
   { re: /PORT[AÃ]O|Alum[ií]nio - port/i, element: 'portoes', metallic: 0.6, roughness: 0.45 },
   { re: /PORTA CINZA|Madeira - porta/i, element: 'portas', roughness: 0.55 },
