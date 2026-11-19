@@ -36,6 +36,8 @@ interface Current { el: HTMLImageElement; shot: Shot; iw: number; ih: number; an
 export class Stage {
   private slots: HTMLImageElement[];
   private cur: Current | null = null;
+  /** imagem em exibição (para posicionar pontos clicáveis sobre ela) */
+  get element(): HTMLImageElement | null { return this.cur?.el ?? null; }
   private turn = 0;
   private root: HTMLDivElement;
   private opts: { blur: boolean; reduced: boolean };

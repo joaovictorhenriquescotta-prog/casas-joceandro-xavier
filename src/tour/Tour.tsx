@@ -6,7 +6,7 @@ import './tour.css';
 import { useStore } from '../store';
 import { PROJECT } from '../config/project';
 import {
-  DEFAULT_SHOT_MS, FACHADA_ON_PLAN, LOT_SHOT, OPENING, PLAN_IMAGE, ROOM_NAMES, ROOM_ORDER, ROOM_SHOTS, type Shot,
+  DEFAULT_SHOT_MS, FACHADA_ON_PLAN, LOT_SHOT, OPENING, PLAN_IMAGE, ROOM_NAMES, ROOM_ORDER, ROOM_SHOTS, type Shot, type Spot,
 } from '../config/tour';
 import { PLAN_HOUSES, PLAN_ROOMS, PLAN_SIZE } from '../config/tourPlan.generated';
 import { camTransform, clampCam, easeInOut, easeOut, fitBox, fly, perspectiveFor, project, projectCam, wait, type Box, type Cam, type Flight } from './camera';
@@ -72,6 +72,10 @@ export function Tour() {
   const [closing, setClosing] = useState(false);
   const [rotateHint, setRotateHint] = useState(false);
   const [vp, setVp] = useState({ w: innerWidth, h: innerHeight });
+  const [zoomSpot, setZoomSpot] = useState<Spot | null>(null);
+  const zoomRef = useRef<Spot | null>(null);
+  const spotEls = useRef<(HTMLButtonElement | null)[]>([]);
+  zoomRef.current = zoomSpot;
 
   const vpRef = useRef(vp);
   const layerRef = useRef<HTMLDivElement>(null);
@@ -89,6 +93,8 @@ export function Tour() {
   viewRef.current = view;
   const stopRef = useRef<number | null>(null);
   stopRef.current = stopIdx;
+  const shotRef = useRef(0);
+  shotRef.current = shotIdx;
 
   const persp = perspectiveFor(vp.w, vp.h);
   const portrait = vp.h > vp.w * 1.1;
@@ -297,6 +303,37 @@ export function Tour() {
     }
   }, [stops, roomCam, runFlight, env.reduced, startCycle, startDrift, maybeRotateHint]);
 
+  const step = useCallback((d: number) => {
+    const cur = stopRef.current ?? (d > 0 ? -1 : 0);
+    goTo((cur + d + stops.length) % stops.length);
+  }, [goTo, stops.length]);
+
+  /** Troca manual de imagem dentro do ambiente (setas laterais, bolinhas, teclado, deslize). Retoma a troca automática. */
+  const showShot = useCallback(async (i: number) => {
+    const idx = stopRef.current;
+    if (idx === null || viewRef.current !== 'room') return;
+    const s = stops[idx];
+    const n = s.shots.length;
+    if (n < 2) return;
+    const k = ((i % n) + n) % n;
+    const my = ++seq.current;
+    clearCycle();
+    setShotIdx(k);
+    await stage.current?.show(s.shots[k], 'fade', shotMs(s.shots[k]), 700);
+    if (seq.current === my) startCycle(s, k);
+  }, [stops, startCycle]);
+
+  /** Próxima/anterior imagem; na última (ou única) imagem passa para o ambiente vizinho. */
+  const flip = useCallback((d: number) => {
+    const idx = stopRef.current;
+    const s = idx !== null ? stops[idx] : null;
+    if (viewRef.current === 'room' && s && s.shots.length > 1) {
+      const next = shotRef.current + d;
+      if (next >= 0 && next < s.shots.length) { showShot(next); return; }
+    }
+    step(d);
+  }, [stops, showShot, step]);
+
   const backToPlan = useCallback(async () => {
     const my = ++seq.current;
     stopDrift(); clearCycle();
@@ -309,11 +346,6 @@ export function Tour() {
     setStopIdx(null);
     setView('plan');
   }, [planCam, runFlight]);
-
-  const step = useCallback((d: number) => {
-    const cur = stopRef.current ?? (d > 0 ? -1 : 0);
-    goTo((cur + d + stops.length) % stops.length);
-  }, [goTo, stops.length]);
 
   const skip = useCallback(() => {
     ++seq.current;
@@ -333,6 +365,14 @@ export function Tour() {
     flight.current?.cancel(); stopDrift(); clearCycle();
     useStore.getState().set({ pendingRoom: room ?? null, phase: 'carregando' });
   }, []);
+
+  // ---------------------------------------------------------------- pontos clicáveis sobre o render
+  const openSpot = useCallback((sp: Spot) => { clearCycle(); setZoomSpot(sp); }, []);
+  const closeSpot = useCallback(() => {
+    setZoomSpot(null);
+    const idx = stopRef.current;
+    if (idx !== null && viewRef.current === 'room') startCycle(stops[idx], shotRef.current);
+  }, [stops, startCycle]);
 
   // ---------------------------------------------------------------- ciclo de vida
   useEffect(() => {
@@ -366,15 +406,40 @@ export function Tour() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const v = viewRef.current;
+      if (zoomRef.current) { if (e.key === 'Escape' || e.key === 'Backspace') closeSpot(); return; }
       if (e.key === 'Escape') { if (v === 'room' || v === 'moving') backToPlan(); else close(); }
       else if (v === 'opening' || v === 'loading') { if (e.key === ' ' || e.key === 'Enter') skip(); }
-      else if (e.key === 'ArrowRight') step(1);
-      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') flip(1);
+      else if (e.key === 'ArrowLeft') flip(-1);
       else if (e.key.toLowerCase() === 'p' && v !== 'plan') backToPlan();
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
-  }, [backToPlan, close, skip, step]);
+  }, [backToPlan, close, skip, flip, closeSpot]);
+
+  // pontos clicáveis acompanham a imagem enquanto ela se move (aproximação lenta / panorâmica)
+  useEffect(() => {
+    const spots = view === 'room' && stopIdx !== null ? stops[stopIdx].shots[shotIdx]?.spots : undefined;
+    if (!spots?.length) return;
+    let raf = 0;
+    const loop = () => {
+      const el = stage.current?.element;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const { w, h } = vpRef.current;
+        spots.forEach((sp, i) => {
+          const b = spotEls.current[i];
+          if (!b) return;
+          const x = r.left + sp.x * r.width, y = r.top + sp.y * r.height;
+          b.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+          b.classList.toggle('off', x < 24 || x > w - 24 || y < 70 || y > h - 130);
+        });
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return () => cancelAnimationFrame(raf);
+  }, [view, stopIdx, shotIdx, stops]);
 
   // ---------------------------------------------------------------- interação com a planta
   const tapStop = (s: Stop) => {
@@ -403,10 +468,10 @@ export function Tour() {
       onPointerDown={(e) => (pointerType.current = e.pointerType)}
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
-        if (touchX.current === null || viewRef.current !== 'room') return;
+        if (touchX.current === null || viewRef.current !== 'room' || zoomRef.current) return;
         const dx = e.changedTouches[0].clientX - touchX.current;
         touchX.current = null;
-        if (Math.abs(dx) > 60) step(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > 60) flip(dx < 0 ? 1 : -1);
       }}
       role="application"
       aria-label="Visita virtual cinematográfica"
@@ -511,8 +576,10 @@ export function Tour() {
       {/* ambiente: indicador e navegação */}
       <div className={`tour-room-ui ${inRoom && current ? 'on' : ''}`}>
         {hasRender && current!.shots.length > 1 && (
-          <div className="tour-dots" aria-hidden>
-            {current!.shots.map((s, i) => <i key={s.src} className={i === shotIdx ? 'on' : ''} />)}
+          <div className="tour-dots">
+            {current!.shots.map((s, i) => (
+              <button key={s.src} className={i === shotIdx ? 'on' : ''} onClick={() => showShot(i)} aria-label={`Imagem ${i + 1} de ${current!.shots.length}`} />
+            ))}
           </div>
         )}
         {shot?.caption && view === 'room' && <p className="tour-caption" key={shot.src}>{shot.caption}</p>}
@@ -529,6 +596,29 @@ export function Tour() {
           <button className="tour-link tour-3d" onClick={() => open3d(current.key)}><Icon.cube /> Ver este ambiente em 3D</button>
         )}
       </div>
+
+      {/* pontos clicáveis sobre o render (ex.: livro na suíte da Casa 2) */}
+      {view === 'room' && shot?.spots?.map((sp, i) => (
+        <button key={shot.src + i} ref={(el) => { spotEls.current[i] = el; }} className="tour-spot off" onClick={() => openSpot(sp)} aria-label={`Abrir: ${sp.label}`}>
+          <i />
+          <span>{sp.cta ?? 'Ver'}</span>
+        </button>
+      ))}
+      {zoomSpot && (
+        <div className="tour-zoom" role="dialog" aria-modal="true" aria-label={zoomSpot.label} onClick={closeSpot}>
+          <img src={zoomSpot.image} alt={zoomSpot.label} onClick={(e) => e.stopPropagation()} />
+          <p>{zoomSpot.label}</p>
+          <button className="tour-zoom-back" onClick={closeSpot} autoFocus><Icon.chevL /> Voltar</button>
+        </div>
+      )}
+
+      {/* setas laterais: trocar a imagem do ambiente */}
+      {view === 'room' && hasRender && current!.shots.length > 1 && (
+        <>
+          <button className="tour-side left" onClick={() => showShot(shotIdx - 1)} aria-label="Imagem anterior"><Icon.chevL /></button>
+          <button className="tour-side right" onClick={() => showShot(shotIdx + 1)} aria-label="Próxima imagem"><Icon.chevR /></button>
+        </>
+      )}
 
       <div className={`tour-rotate ${rotateHint ? 'on' : ''}`}>Gire o celular para ver a imagem inteira</div>
       <div className="tour-fade" />

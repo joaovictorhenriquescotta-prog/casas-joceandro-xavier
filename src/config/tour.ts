@@ -22,7 +22,10 @@ export interface Shot {
   to?: Partial<Frame>;
   /** duração da cena em ms */
   ms?: number;
+  /** pontos clicáveis sobre a imagem (x, y = posição na imagem, 0–1) que abrem outra imagem */
+  spots?: Spot[];
 }
+export interface Spot { x: number; y: number; label: string; image: string; /** texto do botão */ cta?: string }
 
 export const PLAN_IMAGE = {
   hi: v('planta-8k'), // 8192 px, computadores
@@ -79,7 +82,11 @@ export const ROOM_SHOTS: Record<string, Shot[]> = {
   ],
   'casa2-banheiro': [{ src: v('c2-banheiro'), caption: 'Banheiro social' }],
   'casa2-quarto': [{ src: v('c2-quarto'), caption: 'Quarto', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.62, fy: 0.55 } }],
-  'casa2-suite': [{ src: v('c2-suite'), caption: 'Suíte', from: { s: 1.0, fx: 0.5, fy: 0.5 }, to: { s: 1.1, fx: 0.48, fy: 0.55 } }],
+  'casa2-suite': [{
+    src: v('c2-suite'), caption: 'Suíte', from: { s: 1.0, fx: 0.42, fy: 0.5 }, to: { s: 1.1, fx: 0.48, fy: 0.55 },
+    // livro no criado-mudo: abre a capa (arquivo JOCEANDRO/LIVRO.jpeg)
+    spots: [{ x: 0.285, y: 0.784, label: 'Livro “Do Carvão ao Diamante”, de Joceandro Xavier', image: '/visita/livro.webp', cta: 'Ver o livro' }],
+  }],
   'casa2-banho-suite': [{ src: v('c2-banho-suite'), caption: 'Banho da suíte' }],
 };
 

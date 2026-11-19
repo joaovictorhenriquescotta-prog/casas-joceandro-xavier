@@ -187,3 +187,7 @@ original do GLB está nos arquivos do projeto no Claude.
 - Visita (19/11): abertura com os renders de dia (implantação aérea → isométrico → esquina → frente → planta 28-01 com o
   lote); planta interativa nova (27-01). Entrada nos cômodos sem ampliar além da resolução da planta (zMax = env.k),
   inclinação até 16° (20° na fachada) e render com transição suave; anterior/próximo troca direto de render para render.
+- Nos renders: setas laterais e bolinhas clicáveis trocam a imagem do ambiente (a troca automática continua);
+  teclado/deslize passam imagem a imagem e, na última, vão ao ambiente vizinho.
+- Pontos clicáveis sobre renders (`spots` em `ROOM_SHOTS`, posição 0–1 na imagem): livro na suíte da Casa 2 abre
+  `public/visita/livro.webp` (de `JOCEANDRO/LIVRO.jpeg`, 329×501) com botão Voltar.
