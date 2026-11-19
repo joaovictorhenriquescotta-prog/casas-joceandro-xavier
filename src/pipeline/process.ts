@@ -24,7 +24,7 @@ import {
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
 import {
   transformPoint, normalize, cross, sub, invert, multiply, emptyBox, expandBox, boxSize,
-  pointInTri2, type Box,
+  pointInTri2, boxCenter, type Box,
 } from './geom';
 import { classifyMaterial, ROOM_TYPES, TECHNICAL_NODE_PATTERNS, VEGETATION_MATERIAL, WALL_MATERIAL, type ElementId } from './rules';
 import type { SceneMeta, RoomMeta, DoorMeta, FixtureMeta, LedMeta } from './meta';
@@ -168,6 +168,7 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
     });
   }
   log(`Ambientes identificados: ${rooms.length}`);
+  log(`Basculantes fechadas: ${closeTiltedSashes(root, rooms, CLOSE_SASH_ROOMS)}`);
 
   const roomAt = (p: vec3): (typeof rooms)[number] | undefined => {
     for (const r of rooms) {
@@ -403,6 +404,54 @@ export function subtreeBox(node: Node): Box {
     }
   });
   return b;
+}
+
+/** Ambientes cujas janelas basculantes, abertas no SketchUp, são mostradas fechadas (pedido do cliente). */
+const CLOSE_SASH_ROOMS = ['banheiro'];
+
+/**
+ * Fecha folhas de basculante que vêm abertas do SketchUp: grupo com vidro cuja rotação, em relação ao caixilho,
+ * está entre 4° e 35° fora do alinhamento. A rotação volta ao alinhamento (mesma escala) e a folha é centralizada no caixilho.
+ * Só nas janelas junto aos ambientes indicados (até 40 cm das paredes do ambiente).
+ */
+function closeTiltedSashes(root: ReturnType<Document['getRoot']>, rooms: RoomMeta[], types: string[]): number {
+  const parentOf = new Map<Node, Node>();
+  for (const n of root.listNodes()) for (const c of n.listChildren()) parentOf.set(c, n);
+  const targets = rooms.filter((r) => types.includes(r.type));
+  let closed = 0;
+  for (const n of root.listNodes()) {
+    if (n.getMesh()) continue;
+    const parent = parentOf.get(n);
+    if (!parent) continue;
+    const glass = n.listChildren().some((c) => c.getMesh()?.listPrimitives().some((p) => (p.getMaterial()?.getBaseColorFactor()[3] ?? 1) < 0.9));
+    if (!glass) continue;
+    const m = n.getMatrix().slice() as mat4;
+    const cols = [0, 1, 2].map((i) => [m[i * 4], m[i * 4 + 1], m[i * 4 + 2]]);
+    const axis = cols.map((c) => { let k = 0; for (let j = 1; j < 3; j++) if (Math.abs(c[j]) > Math.abs(c[k])) k = j; return k; });
+    if (new Set(axis).size !== 3) continue;
+    const dev = Math.max(...cols.map((c, i) => Math.acos(Math.min(1, Math.abs(c[axis[i]]) / Math.hypot(c[0], c[1], c[2]))) * 180 / Math.PI));
+    if (dev < 4 || dev > 35) continue;
+    const frame = parent.listChildren().filter((c) => c.getMesh());
+    if (!frame.length) continue;
+    const before = subtreeBox(n);
+    const c0 = boxCenter(before);
+    if (!targets.some((r) => c0[0] > r.min[0] - 0.4 && c0[0] < r.max[0] + 0.4 && c0[2] > r.min[2] - 0.4 && c0[2] < r.max[2] + 0.4)) continue;
+    // rotação alinhada ao caixilho, mantendo escala e espelhamento
+    cols.forEach((c, i) => {
+      const L = Math.hypot(c[0], c[1], c[2]);
+      for (let j = 0; j < 3; j++) m[i * 4 + j] = j === axis[i] ? Math.sign(c[j]) * L : 0;
+    });
+    n.setMatrix(m);
+    // centraliza a folha no caixilho
+    const fb = emptyBox();
+    for (const fr of frame) { const b = subtreeBox(fr); expandBox(fb, b.min); expandBox(fb, b.max); }
+    const inv = invert(parent.getWorldMatrix());
+    const pf = transformPoint(inv, boxCenter(fb)), ps = transformPoint(inv, boxCenter(subtreeBox(n)));
+    m[12] += pf[0] - ps[0]; m[13] += pf[1] - ps[1]; m[14] += pf[2] - ps[2];
+    n.setMatrix(m);
+    closed++;
+  }
+  return closed;
 }
 
 /** UV secundário em metros (coordenadas de mundo) para revestimentos personalizados. */

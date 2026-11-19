@@ -66,7 +66,7 @@ npm run dev          # http://localhost:5173  (painel: /admin)
 npm run build        # gera dist/
 ```
 
-O modelo publicado com o código fica em `public/models/v9/` e o manifesto em `public/models/manifest.json`.
+O modelo publicado com o código fica em `public/models/v10/` e o manifesto em `public/models/manifest.json`.
 
 ## Hospedagem na Vercel
 
@@ -105,7 +105,7 @@ Para que tudo continue funcionando nas próximas versões, mantenha no SketchUp:
 Pela linha de comando, o mesmo processamento:
 
 ```bash
-NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-de-texturas] public/models/v9/model.glb
+NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-de-texturas] public/models/v10/model.glb
 ```
 
 ## Estrutura

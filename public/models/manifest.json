@@ -1,13 +1,13 @@
 {
-  "current": "v9",
+  "current": "v10",
   "versions": [
     {
-      "id": "v9",
-      "url": "/models/v9/model.glb",
+      "id": "v10",
+      "url": "/models/v10/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
-      "createdAt": "2026-11-19T17:30:00Z",
+      "createdAt": "2026-11-19T17:50:00Z",
       "status": "publicado",
-      "notes": "GLB de 19/11 12:32; posições com 16 bits (caixilhos sem distorção)"
+      "notes": "GLB de 19/11 12:32; basculantes dos banheiros sociais fechadas; posições com 16 bits"
     }
   ]
 }
