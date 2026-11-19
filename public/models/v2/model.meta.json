@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-19T05:14:45.272Z",
+  "generatedAt": "2026-11-19T05:29:31.327Z",
   "houseBounds": {
     "min": [
       5.007775603580114,
@@ -23194,27 +23194,6 @@
       "room": null
     },
     {
-      "name": "bottom_leaf2",
-      "original": "bottom_leaf2",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Hibiscus pedal",
-      "original": "Hibiscus pedal",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Hisbiscus_pistal",
-      "original": "Hisbiscus_pistal",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
       "name": "[Color_007]1",
       "original": "[Color_007]1",
       "element": null,
@@ -38615,62 +38594,6 @@
       "room": null
     },
     {
-      "name": "1asd0f1a6s0d16w016",
-      "original": "1asd0f1a6s0d16w016",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Material88asd0vcx15v0cx61095s",
-      "original": "Material88asd0vcx15v0cx61095s",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "leaf01adsf0sd150vcx1v6x",
-      "original": "leaf01adsf0sd150vcx1v6x",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "leaf02sadf0v1xc50v1x0616s",
-      "original": "leaf02sadf0v1xc50v1x0616s",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "leaf03sadf0v1xc50v1x6016x09s",
-      "original": "leaf03sadf0v1xc50v1x6016x09s",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "fern1_smaller_cleaadsfasd01w56016n_smaller",
-      "original": "fern1_smaller_cleaadsfasd01w56016n_smaller",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "ARBUSTO 4 - 2",
-      "original": "ARBUSTO 4 - 2",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "ARBUSTO 4 - 1",
-      "original": "ARBUSTO 4 - 1",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
       "name": "BIANCOGRES FROZEN LUX 120 120 ACETINADO",
       "original": "BIANCOGRES FROZEN LUX 120 120 ACETINADO",
       "element": "pisos",
@@ -38937,85 +38860,8 @@
       "room": null
     },
     {
-      "name": "Prof. Ronaldo Luidi - Cycca Folha",
-      "original": "Prof. Ronaldo Luidi - Cycca Folha",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Prof. Ronaldo Luidi - Cycca Tronco",
-      "original": "Prof. Ronaldo Luidi - Cycca Tronco",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Prof. Ronaldo Luidi - Cycca Tronco2",
-      "original": "Prof. Ronaldo Luidi - Cycca Tronco2",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
       "name": "Materisadfasdfasd0f0as0dweral",
       "original": "Materisadfasdfasd0f0as0dweral",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "cgaxis_plants_15_2",
-      "original": "cgaxis_plants_15_2",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "cgaxis_plants_15_3",
-      "original": "cgaxis_plants_15_3",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Heliconia rostrata 6inch2",
-      "original": "Heliconia rostrata 6inch2",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "[Color G08]",
-      "original": "[Color G08]",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "R127_G127_B127",
-      "original": "R127_G127_B127",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "[Color F08]",
-      "original": "[Color F08]",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "Wood14",
-      "original": "Wood14",
-      "element": null,
-      "surface": null,
-      "room": null
-    },
-    {
-      "name": "CordylineLeaves_Red_260w copy",
-      "original": "CordylineLeaves_Red_260w copy",
       "element": null,
       "surface": null,
       "room": null

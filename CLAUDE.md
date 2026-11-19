@@ -96,7 +96,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - `api/` (funções da Vercel, imports relativos **com extensão `.js`**, obrigatório em ESM):
   `login.ts`, `manifest.ts` (GET público / POST admin: add, publish, archive, delete), `upload.ts` (token de envio
   direto para o Blob), `configs.ts`, `_lib.ts` (token HMAC de 12 h, manifestos versionados em `manifests/`).
-- Modelo publicado com o código: `public/models/v1/model.glb` + `model.meta.json`; manifesto estático
+- Modelo publicado com o código: `public/models/v2/model.glb` + `model.meta.json`; manifesto estático
   `public/models/manifest.json` (usado quando não há Blob).
 
 ## 7. Estado atual (18/11/2026)
@@ -119,7 +119,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
    ("Restaurar").
 4. Para não quebrar nada: manter pisos como grupos `PISO - <AMBIENTE> <área> m²`, folhas de porta separadas do
    batente, e os nomes dos materiais personalizáveis.
-- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v1/model.glb`
+- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v2/model.glb`
 
 ## 9. Limitações conhecidas
 
@@ -204,3 +204,9 @@ original do GLB está nos arquivos do projeto no Claude.
 - Interior de dia: `InteriorFill.tsx` (2 luzes suaves sem sombra no teto do cômodo atual, simulando luz rebatida),
   AO mais leve; cortinas `shtora-tul` translúcidas (`opacity` em `renderLook.ts`).
 - Texturas soltas em `JOCEANDRO/texturas` (.skm/.jpg) não foram usadas: o GLB já traz as texturas embutidas.
+- (19/11, depois) A pedido, a visita 3D ficou **sem vegetação**: `removeVegetation` no pipeline (padrão ligado; regex
+  `VEGETATION_MATERIAL` em `rules.ts`) retira as 22 plantas inteiras (com vaso/tronco); o gramado fica. O paisagismo
+  gerado (`Landscape.tsx`) também não cria mais plantas. GLB de 52 MB.
+- Modelo agora em `public/models/v2/` (manifesto aponta para v2). **Ao trocar o modelo, usar uma pasta nova (v3…)**:
+  os navegadores guardam `/models/...` por até 1 dia (stale-while-revalidate), então o mesmo endereço mostra o antigo.
+- Os dois carros (Casa 1 cinza-escuro, Casa 2 branco) vêm assim do SketchUp/renders.

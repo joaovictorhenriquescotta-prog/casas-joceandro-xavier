@@ -7,6 +7,13 @@ export type ElementId =
   | 'vidros' | 'decorativos' | 'entorno' | null;
 
 /** Grupos de nós que não fazem parte da visita (camadas técnicas e câmeras salvas). */
+/**
+ * Materiais de folhagem (plantas de biblioteca do SketchUp). Por decisão da Hellena (19/11/2026) a visita 3D fica sem
+ * vegetação: cada planta sai inteira (o maior grupo em que folhas são ≥ 35% dos triângulos, com vaso e tronco).
+ * O gramado ("[Vegetation Grass Artificial]") fica: é piso do jardim.
+ */
+export const VEGETATION_MATERIAL = /leaf|Leaves|folha|Folha|plants|Heliconia|Hibiscus|Hisbiscus|ARBUSTO|fern|Cycca/i;
+
 export const TECHNICAL_NODE_PATTERNS: RegExp[] = [
   /^Cena\d+$/, /^Active View$/, /^TERRENO - ISOMETRICA$/,
   /^CURVAS DE NIVEL/, /^CURVAS MESTRAS$/, /^PONTOS COTADOS/, /^VOLUME DE CORTE/,

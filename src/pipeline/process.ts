@@ -26,7 +26,7 @@ import {
   transformPoint, normalize, cross, sub, invert, multiply, emptyBox, expandBox, boxSize,
   pointInTri2, type Box,
 } from './geom';
-import { classifyMaterial, ROOM_TYPES, TECHNICAL_NODE_PATTERNS, WALL_MATERIAL, type ElementId } from './rules';
+import { classifyMaterial, ROOM_TYPES, TECHNICAL_NODE_PATTERNS, VEGETATION_MATERIAL, WALL_MATERIAL, type ElementId } from './rules';
 import type { SceneMeta, RoomMeta, DoorMeta, FixtureMeta, LedMeta } from './meta';
 
 export type Log = (msg: string) => void;
@@ -43,6 +43,8 @@ export interface ProcessOptions {
    * triângulos (somando as repetições). Paredes, pisos, lajes, portas e terreno nunca são simplificados. 0 desliga (padrão: 8000).
    */
   simplifyAbove?: number;
+  /** Retira as plantas do modelo (padrão: true). */
+  removeVegetation?: boolean;
   /** Aplica compressão Meshopt na geometria (padrão: true). */
   meshopt?: boolean;
   log?: Log;
@@ -66,6 +68,7 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   }
   for (const cam of root.listCameras()) cam.dispose();
   log(`Camadas técnicas removidas: ${removed}`);
+  if (opts.removeVegetation !== false) log(`Plantas retiradas: ${removeVegetation(root)}`);
 
   // 2. Materiais --------------------------------------------------------------------
   await doc.transform(metalRough());
@@ -632,6 +635,34 @@ async function simplifyDecor(doc: Document, limit: number, log: Log) {
   }
   log(`Objetos decorativos simplificados: ${Math.round(before / 1000)} mil → ${Math.round(after / 1000)} mil triângulos`);
   if (report.length) log('  ' + report.join(' · '));
+}
+
+/** Retira cada planta inteira: sobe da malha com folhas até o maior grupo em que folhas são ≥ 35% dos triângulos. */
+function removeVegetation(root: ReturnType<Document['getRoot']>): number {
+  const parent = new Map<Node, Node>();
+  for (const n of root.listNodes()) for (const c of n.listChildren()) parent.set(c, n);
+  const cache = new Map<Node, [number, number]>();
+  const stat = (n: Node): [number, number] => {
+    const c = cache.get(n); if (c) return c;
+    let leaf = 0, all = 0;
+    for (const p of n.getMesh()?.listPrimitives() ?? []) {
+      const t = (p.getIndices()?.getCount() ?? p.getAttribute('POSITION')?.getCount() ?? 0) / 3;
+      all += t; if (VEGETATION_MATERIAL.test(p.getMaterial()?.getName() ?? '')) leaf += t;
+    }
+    for (const ch of n.listChildren()) { const [l, a] = stat(ch); leaf += l; all += a; }
+    const r: [number, number] = [leaf, all]; cache.set(n, r); return r;
+  };
+  const tops = new Set<Node>();
+  for (const n of root.listNodes()) {
+    if (!n.getMesh()?.listPrimitives().some((p) => VEGETATION_MATERIAL.test(p.getMaterial()?.getName() ?? ''))) continue;
+    let best = n;
+    for (let p = parent.get(n); p; p = parent.get(p)) { const [l, a] = stat(p); if (!a || l / a < 0.35) break; best = p; }
+    tops.add(best);
+  }
+  // um grupo pode estar dentro de outro: descarta só os mais externos
+  const outer = [...tops].filter((t) => { for (let p = parent.get(t); p; p = parent.get(p)) if (tops.has(p)) return false; return true; });
+  for (const t of outer) disposeSubtree(t);
+  return outer.length;
 }
 
 /** Junta vértices na mesma posição (1 mm), ficando com a coordenada de textura do primeiro. */

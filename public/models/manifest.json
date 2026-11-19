@@ -1,13 +1,13 @@
 {
-  "current": "v1",
+  "current": "v2",
   "versions": [
     {
-      "id": "v1",
-      "url": "/models/v1/model.glb",
+      "id": "v2",
+      "url": "/models/v2/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
-      "createdAt": "2026-11-18T00:36:00Z",
+      "createdAt": "2026-11-19T05:30:00Z",
       "status": "publicado",
-      "notes": "Primeira versão importada do SketchUp"
+      "notes": "Modelo de 19/11 sem vegetação, objetos decorativos simplificados"
     }
   ]
 }
