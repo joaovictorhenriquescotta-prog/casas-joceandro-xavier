@@ -226,3 +226,7 @@ original do GLB está nos arquivos do projeto no Claude.
 - Regra de vidro em `rules.ts` usa `cristal(?!lo)`: ".Cristallo Bianco Lux" é o porcelanato do banheiro social e ficava 72% transparente (parede externa do banheiro da Casa 1 "invisível" vista da área externa).
 - meshopt com `quantizePosition: 16` (o padrão 14 distorcia milímetros em caixilhos finos). As basculantes dos banheiros sociais estão abertas ~16° no próprio SketchUp (não é erro do pipeline).
 - `closeTiltedSashes` (process.ts) fecha no modelo processado as basculantes abertas no SketchUp dos ambientes em `CLOSE_SASH_ROOMS` (hoje só `banheiro` = banheiros sociais, pedido do cliente em 19/11). As dos banhos das suítes continuam abertas como no SketchUp; para fechá-las, acrescente `banho-suite`.
+
+## QR code da placa do terreno (NÃO QUEBRAR)
+- A placa impressa aponta para https://casas-joceandro-xavier.vercel.app (raiz). Arquivos em JOCEANDRO/QR CODE PLACA.
+- Nunca renomear/excluir o projeto na Vercel, nunca tirar esse domínio do projeto e a página inicial (/) deve sempre abrir o site. Se um dia houver domínio próprio, manter o .vercel.app ativo (redirecionando).
