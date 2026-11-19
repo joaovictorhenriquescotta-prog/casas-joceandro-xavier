@@ -217,3 +217,4 @@ original do GLB está nos arquivos do projeto no Claude.
   comprimento zero (`fixZeroNormals`, viravam manchas pretas com o bloom). Resultado: 804 materiais, 35 MB, menos
   chamadas de desenho que a v1, abertura como a v1. O painel /admin (navegador) não tem `textureStats`: modelos
   enviados por lá ficam mais pesados; prefira a CLI.
+- Tela inicial no celular em pé (`max-aspect-ratio: 1/1`): imagem inteira das casas (150vw, no alto) sobre a mesma imagem desfocada, sem o zoom lento; `--img` em `.intro-bg-layer`.

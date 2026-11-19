@@ -25,7 +25,15 @@ input { font: inherit; }
 /* ------------------------------ Tela inicial ------------------------------ */
 .intro { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; }
 .intro-bg { position: absolute; inset: 0; transform: scale(1.04); animation: kb 22s ease-out forwards; }
-.intro-bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center 40%; animation: bgfade 0.9s ease both; }
+.intro-bg-layer { position: absolute; inset: 0; background-image: var(--img); background-size: cover; background-position: center 40%; animation: bgfade 0.9s ease both; isolation: isolate; overflow: hidden; }
+/* celular em pé: a imagem é panorâmica (2,9:1) e o "cover" cortava as casas; mostra o conjunto inteiro (casas de
+   ponta a ponta do muro) e preenche o resto com a mesma imagem desfocada */
+@media (max-aspect-ratio: 1/1) {
+  .intro-bg { animation: none; transform: none; }
+  .intro-bg-layer { background: none; }
+  .intro-bg-layer::before { content: ''; position: absolute; inset: -60px; background: var(--img) center / cover; filter: blur(28px) brightness(0.7) saturate(1.1); }
+  .intro-bg-layer::after { content: ''; position: absolute; inset: 0; background: var(--img) no-repeat 80% max(env(safe-area-inset-top), 7%) / 150vw auto; }
+}
 .intro-bg-layer:first-child { animation: none; }
 @keyframes bgfade { from { opacity: 0; } }
 .btn-secondary.on { border-color: var(--accent); }

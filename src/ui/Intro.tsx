@@ -49,7 +49,7 @@ export function Intro({ ready, error }: { ready: boolean; error: string | null }
     <div className="intro">
       <div className="intro-bg">
         {layers.map((id) => (
-          <div key={id} className="intro-bg-layer" style={{ backgroundImage: `url(${colorById(id).image})` }} />
+          <div key={id} className="intro-bg-layer" style={{ ['--img' as string]: `url(${colorById(id).image})` }} />
         ))}
       </div>
       <div className="intro-shade" />
