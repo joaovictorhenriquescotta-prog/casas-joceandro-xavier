@@ -19,8 +19,9 @@ import {
 } from '@gltf-transform/core';
 import {
   metalRough, dedup, prune, flatten, join, transformPrimitive, meshopt, weld, clearNodeTransform,
+  weldPrimitive, simplifyPrimitive,
 } from '@gltf-transform/functions';
-import { MeshoptEncoder } from 'meshoptimizer';
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
 import {
   transformPoint, normalize, cross, sub, invert, multiply, emptyBox, expandBox, boxSize,
   pointInTri2, type Box,
@@ -37,6 +38,11 @@ export interface ProcessOptions {
   hasTransparency?: (data: Uint8Array, mimeType: string) => Promise<boolean>;
   /** Compressão final de texturas (ex.: sharp no Node). Opcional. */
   compressTextures?: (doc: Document) => Promise<void>;
+  /**
+   * Simplifica objetos decorativos muito pesados (plantas, luminárias, carros, cortinas) acima deste número de
+   * triângulos (somando as repetições). Paredes, pisos, lajes, portas e terreno nunca são simplificados. 0 desliga (padrão: 8000).
+   */
+  simplifyAbove?: number;
   /** Aplica compressão Meshopt na geometria (padrão: true). */
   meshopt?: boolean;
   log?: Log;
@@ -287,8 +293,9 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   for (const node of scene.listChildren()) {
     if (!node.getName().startsWith('DOOR__') && node.getMesh()) clearNodeTransform(node);
   }
+  await doc.transform(join({ keepNamed: true }));
+  await simplifyDecor(doc, opts.simplifyAbove ?? 8000, log);
   await doc.transform(
-    join({ keepNamed: true }),
     weld(),
     dedup({ keepUniqueNames: true }),
     prune({ keepAttributes: true }),
@@ -586,3 +593,114 @@ function doorLabel(rooms: RoomMeta[], kind: string) {
 }
 
 export type { Accessor };
+
+/**
+ * Objetos decorativos pesados (plantas, plafons, carros, cortinas): modelos de biblioteca chegam com centenas de
+ * milhares de triângulos e deixam o arquivo grande demais para o navegador. Depois de juntar as malhas por material,
+ * cada material decorativo acima do limite é simplificado com desvio máximo de ~2,5 cm. Paredes, pisos, lajes,
+ * portas, fachada, muros, vidros e terreno nunca são simplificados.
+ */
+async function simplifyDecor(doc: Document, limit: number, log: Log) {
+  if (limit <= 0) return;
+  await MeshoptSimplifier.ready;
+  const arch = /^(PAREDE|PISO|ROOF|DOOR)|TINTA|MURO|Muro|LAJE|TERRENO|terreno|vidro|Vidro|VIDRO|Glass|glass|ESQUADR|esquadr|Esquadr|BIANCOGRES|GRANITO|Granito|CALACATA|LR_LED/;
+  const triCount = (p: Primitive) => (p.getIndices()?.getCount() ?? p.getAttribute('POSITION')?.getCount() ?? 0) / 3;
+  let before = 0, after = 0;
+  const report: string[] = [];
+  for (const node of doc.getRoot().listNodes()) {
+    if (/^(DOOR|ROOF)__/.test(node.getName())) continue;
+    for (const prim of node.getMesh()?.listPrimitives() ?? []) {
+      const name = prim.getMaterial()?.getName() ?? '';
+      const tris = triCount(prim);
+      if (tris <= limit || prim.getMode() !== 4 || arch.test(name)) continue;
+      const pos = prim.getAttribute('POSITION')!;
+      const lo = pos.getMin([0, 0, 0]), hi = pos.getMax([0, 0, 0]);
+      const diag = Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) || 1;
+      const textured = !!prim.getMaterial()?.getBaseColorTexture();
+      // normais separam os vértices em cada aresta e travam a simplificação: saem e são recalculadas (com quinas)
+      prim.setAttribute('NORMAL', null);
+      for (const k of prim.listSemantics()) if (k !== 'POSITION' && !(textured && k === 'TEXCOORD_0')) prim.setAttribute(k, null);
+      weldPrimitive(prim);
+      // triângulos soltos (cada canto com sua própria coordenada de textura): junta pela posição
+      if (prim.getAttribute('POSITION')!.getCount() > tris * 1.5) weldByPosition(doc, prim);
+      simplifyPrimitive(prim, { simplifier: MeshoptSimplifier, ratio: Math.max(0.05, limit / tris), error: Math.min(0.2, 0.025 / diag), lockBorder: false });
+      creaseNormals(doc, prim, 40);
+      const now = triCount(prim);
+      before += tris; after += now;
+      if (tris > 100000) report.push(`${name} ${Math.round(tris / 1000)}k→${Math.round(now / 1000)}k`);
+    }
+  }
+  log(`Objetos decorativos simplificados: ${Math.round(before / 1000)} mil → ${Math.round(after / 1000)} mil triângulos`);
+  if (report.length) log('  ' + report.join(' · '));
+}
+
+/** Junta vértices na mesma posição (1 mm), ficando com a coordenada de textura do primeiro. */
+function weldByPosition(doc: Document, prim: Primitive) {
+  const pos = prim.getAttribute('POSITION')!;
+  const uv = prim.getAttribute('TEXCOORD_0');
+  const idx = prim.getIndices();
+  const n = idx ? idx.getCount() : pos.getCount();
+  const key = new Map<string, number>();
+  const P: number[] = [], U: number[] = [];
+  const out = new Uint32Array(n);
+  const v = [0, 0, 0], e = [0, 0];
+  for (let i = 0; i < n; i++) {
+    const src = idx ? idx.getScalar(i) : i;
+    pos.getElement(src, v);
+    const k = `${Math.round(v[0] * 1000)},${Math.round(v[1] * 1000)},${Math.round(v[2] * 1000)}`;
+    let j = key.get(k);
+    if (j === undefined) {
+      j = P.length / 3; key.set(k, j); P.push(v[0], v[1], v[2]);
+      if (uv) { uv.getElement(src, e); U.push(e[0], e[1]); }
+    }
+    out[i] = j;
+  }
+  const buffer = doc.getRoot().listBuffers()[0];
+  prim.setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(new Float32Array(P)).setBuffer(buffer));
+  if (uv) prim.setAttribute('TEXCOORD_0', doc.createAccessor().setType('VEC2').setArray(new Float32Array(U)).setBuffer(buffer));
+  prim.setIndices(doc.createAccessor().setType('SCALAR').setArray(out).setBuffer(buffer));
+}
+
+/** Normais suaves nas superfícies curvas e quinas vivas acima de `creaseDeg` (resultado sem índices; o weld junta depois). */
+function creaseNormals(doc: Document, prim: Primitive, creaseDeg: number) {
+  const pos = prim.getAttribute('POSITION')!;
+  const uv = prim.getAttribute('TEXCOORD_0');
+  const idx = prim.getIndices();
+  const nTri = (idx ? idx.getCount() : pos.getCount()) / 3;
+  const corner = (i: number) => (idx ? idx.getScalar(i) : i);
+  const fn = new Float32Array(nTri * 3);
+  const p = [0, 0, 0], q = [0, 0, 0], r = [0, 0, 0];
+  const faces = new Map<number, number[]>();
+  for (let t = 0; t < nTri; t++) {
+    const i0 = corner(t * 3), i1 = corner(t * 3 + 1), i2 = corner(t * 3 + 2);
+    pos.getElement(i0, p); pos.getElement(i1, q); pos.getElement(i2, r);
+    const ux = q[0] - p[0], uy = q[1] - p[1], uz = q[2] - p[2], vx = r[0] - p[0], vy = r[1] - p[1], vz = r[2] - p[2];
+    fn[t * 3] = uy * vz - uz * vy; fn[t * 3 + 1] = uz * vx - ux * vz; fn[t * 3 + 2] = ux * vy - uy * vx;
+    for (const v of [i0, i1, i2]) { const l = faces.get(v); if (l) l.push(t); else faces.set(v, [t]); }
+  }
+  const cos = Math.cos((creaseDeg * Math.PI) / 180);
+  const unit = (t: number) => { const l = Math.hypot(fn[t * 3], fn[t * 3 + 1], fn[t * 3 + 2]) || 1; return [fn[t * 3] / l, fn[t * 3 + 1] / l, fn[t * 3 + 2] / l]; };
+  const P = new Float32Array(nTri * 9), N = new Float32Array(nTri * 9), U = uv ? new Float32Array(nTri * 6) : null;
+  const e = [0, 0];
+  for (let t = 0; t < nTri; t++) {
+    const ft = unit(t);
+    for (let k = 0; k < 3; k++) {
+      const v = corner(t * 3 + k), o = (t * 3 + k);
+      pos.getElement(v, p); P.set(p, o * 3);
+      if (U && uv) { uv.getElement(v, e); U.set(e, o * 2); }
+      let nx = 0, ny = 0, nz = 0;
+      for (const f of faces.get(v)!) {
+        const g = unit(f);
+        if (g[0] * ft[0] + g[1] * ft[1] + g[2] * ft[2] >= cos) { nx += fn[f * 3]; ny += fn[f * 3 + 1]; nz += fn[f * 3 + 2]; }
+      }
+      const l = Math.hypot(nx, ny, nz) || 1;
+      N[o * 3] = nx / l; N[o * 3 + 1] = ny / l; N[o * 3 + 2] = nz / l;
+    }
+  }
+  const buffer = doc.getRoot().listBuffers()[0];
+  const acc = (type: 'VEC3' | 'VEC2', arr: Float32Array<ArrayBuffer>) => doc.createAccessor().setType(type).setArray(arr).setBuffer(buffer);
+  prim.setIndices(null);
+  prim.setAttribute('POSITION', acc('VEC3', P));
+  prim.setAttribute('NORMAL', acc('VEC3', N));
+  if (U) prim.setAttribute('TEXCOORD_0', acc('VEC2', U));
+}

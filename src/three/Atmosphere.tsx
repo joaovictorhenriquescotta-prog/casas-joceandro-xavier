@@ -102,7 +102,7 @@ export function Atmosphere({ center, radius }: { center: THREE.Vector3; radius: 
     hemi.current.color.copy(p.hemiSky).lerp(INTERIOR_SKY, k * (1 - p.night));
     hemi.current.groundColor.copy(p.hemiGround).lerp(INTERIOR_GROUND, k * (1 - p.night));
     hemi.current.intensity = THREE.MathUtils.lerp(p.hemiIntensity, (1 - p.night) * 1.15 + 0.05, k);
-    gl.toneMappingExposure = p.exposure * (1 + 0.2 * k * (1 - p.night));
+    gl.toneMappingExposure = p.exposure * (1 + 0.1 * k * (1 - p.night));
     scene.environmentIntensity = p.envIntensity * (1 - 0.35 * k);
     if (sky.current?.material?.uniforms) {
       const u = sky.current.material.uniforms;

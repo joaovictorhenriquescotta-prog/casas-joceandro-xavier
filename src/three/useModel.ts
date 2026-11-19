@@ -51,6 +51,7 @@ function prepare(gltf: GLTF): LoadedModel {
         if (look?.color) m.color.set(look.color);
         if (look?.roughness !== undefined) m.roughness = look.roughness;
         if (look?.env !== undefined) m.envMapIntensity = look.env;
+        if (look?.opacity !== undefined) { m.transparent = true; m.opacity = look.opacity; m.depthWrite = false; m.side = THREE.DoubleSide; }
       }
       if (m.map) m.map.anisotropy = 8;
       if (m.transparent) mesh.renderOrder = 2;

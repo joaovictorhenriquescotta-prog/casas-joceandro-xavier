@@ -280,7 +280,9 @@ export function Landscape({ model }: { model: LoadedModel }) {
   const built = useMemo(() => {
     const group = new THREE.Group();
     group.name = 'paisagismo';
-    const { along, open } = analyse(model);
+    // o modelo novo já traz as plantas do projeto (as mesmas dos renders): aí só entram o chão e as luminárias
+    const hasVegetation = [...model.materials.keys()].some((n) => /leaf|folha|plants|Cycca|bottom_leaf/i.test(n));
+    const { along, open } = hasVegetation ? { along: [], open: [] } : analyse(model);
     const sceneBox = new THREE.Box3().setFromObject(model.scene);
 
     // chão ao redor do terreno, para o lote não flutuar no vazio

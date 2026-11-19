@@ -191,3 +191,16 @@ original do GLB está nos arquivos do projeto no Claude.
   teclado/deslize passam imagem a imagem e, na última, vão ao ambiente vizinho.
 - Pontos clicáveis sobre renders (`spots` em `ROOM_SHOTS`, posição 0–1 na imagem): livro na suíte da Casa 2 abre
   `public/visita/livro.webp` (de `JOCEANDRO/LIVRO.jpeg`, 329×501) com botão Voltar.
+
+## 10.4 Modelo 3D novo (19/11/2026)
+
+- Novo GLB `JOCEANDRO/TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb` (19/11 00:51, 356 MB, 8,5 mi de triângulos) com as plantas
+  e objetos do projeto (as mesmas dos renders). Ambientes, áreas e caixas idênticos à versão anterior (conferido).
+- `process.ts` ganhou `simplifyDecor` (depois do join): materiais decorativos acima de 8 mil triângulos (plantas,
+  plafons, carros, cortinas) são simplificados com desvio de ~2,5 cm e normais recalculadas preservando quinas.
+  Paredes, pisos, lajes, portas, fachada, muros, vidros, bancadas e terreno nunca são simplificados (`simplifyAbove: 0`
+  desliga). Resultado: 7,7 mi → 1,3 mi triângulos decorativos, GLB de 68 MB.
+- Com vegetação no modelo, `Landscape.tsx` não gera mais cerca viva/capim/palmeiras (só chão e luminárias).
+- Interior de dia: `InteriorFill.tsx` (2 luzes suaves sem sombra no teto do cômodo atual, simulando luz rebatida),
+  AO mais leve; cortinas `shtora-tul` translúcidas (`opacity` em `renderLook.ts`).
+- Texturas soltas em `JOCEANDRO/texturas` (.skm/.jpg) não foram usadas: o GLB já traz as texturas embutidas.

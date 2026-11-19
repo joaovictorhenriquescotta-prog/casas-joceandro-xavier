@@ -11,6 +11,7 @@ import { HouseModel } from './HouseModel';
 import { Lights } from './Lights';
 import { Navigation } from './Navigation';
 import { Landscape } from './Landscape';
+import { InteriorFill } from './InteriorFill';
 
 export function Experience({ model }: { model: LoadedModel }) {
   const quality = useStore((s) => s.quality);
@@ -45,10 +46,11 @@ export function Experience({ model }: { model: LoadedModel }) {
       </Suspense>
       <HouseModel model={model} />
       <Lights model={model} />
+      <InteriorFill />
       <Landscape model={model} />
       <Navigation />
       <EffectComposer multisampling={0} enableNormalPass={false}>
-        {quality === 'alta' ? <N8AO aoRadius={0.9} distanceFalloff={0.8} intensity={2.2} halfRes quality="medium" /> : <></>}
+        {quality === 'alta' ? <N8AO aoRadius={0.7} distanceFalloff={0.8} intensity={1.4} halfRes quality="medium" /> : <></>}
         <Bloom mipmapBlur intensity={0.55} luminanceThreshold={1.1} luminanceSmoothing={0.25} />
         <ToneMapping mode={ToneMappingMode.NEUTRAL} />
         <Vignette darkness={0.32} offset={0.25} />

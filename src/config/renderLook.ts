@@ -8,6 +8,8 @@ export interface LookRule {
   roughness?: number;
   /** multiplica a intensidade de reflexos do ambiente (envMapIntensity) */
   env?: number;
+  /** deixa o material translúcido (0–1) */
+  opacity?: number;
   note: string;
 }
 
@@ -20,6 +22,8 @@ export const RENDER_LOOK: LookRule[] = [
   // pisos: porcelanato claro polido nas duas casas
   { re: /^PISO_casa[12]-(estar|quarto|suite)__Padrão SketchUp$/, color: '#efede9', roughness: 0.18, env: 1.6, note: 'piso claro polido' },
   { re: /BIANCOGRES|Elizabeth Le Blanc/, roughness: 0.14, env: 1.6, note: 'porcelanato polido com reflexo' },
+  // cortinas de voil: translúcidas como nos renders (a luz da janela passa)
+  { re: /^shtora-tul$/, color: '#f6f3ee', opacity: 0.62, note: 'cortinas de voil translúcidas' },
   { re: /GRANITO|Granito|CALACATA/, roughness: 0.08, env: 1.8, note: 'bancadas com brilho de pedra polida' },
 ];
 
