@@ -52,6 +52,11 @@ export function Hud() {
     const vp = s.viewpoints.find((v) => v.id === 'fachada');
     if (vp) s.set({ flyTo: { ...vp }, panel: null });
   };
+  /** volta para a página inicial (o modelo continua carregado: reabrir o 3D é imediato) */
+  const exitToHome = () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    s.set({ panel: null, flyTo: null, phase: 'intro' });
+  };
   const fullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen?.();
@@ -61,10 +66,15 @@ export function Hud() {
   return (
     <div className="hud">
       <header className="topbar">
-        <button className="brand" onClick={goHome} title="Voltar à fachada">
-          <span className="brand-name">{PROJECT.name}</span>
-          <span className="brand-sub">Visita virtual</span>
-        </button>
+        <div className="topbar-left">
+          <button className="icon-btn back-home" onClick={exitToHome} title="Voltar à página inicial" aria-label="Voltar à página inicial">
+            <Icon.chevL /><span>Início</span>
+          </button>
+          <button className="brand" onClick={goHome} title="Voltar à fachada">
+            <span className="brand-name">{PROJECT.name}</span>
+            <span className="brand-sub">Visita virtual</span>
+          </button>
+        </div>
         <div className="where" aria-live="polite">
           {room ? (
             <>

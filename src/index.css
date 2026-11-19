@@ -126,6 +126,10 @@ input { font: inherit; }
 .where-house { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
 .where-room { font-size: 14px; }
 .topbar-actions { display: flex; gap: 6px; }
+.topbar-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.icon-btn.back-home { width: auto; height: 46px; padding: 0 14px 0 9px; gap: 4px; display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; }
+.back-home svg { width: 20px; height: 20px; }
+@media (max-width: 600px) { .icon-btn.back-home { width: 40px; height: 40px; padding: 0; justify-content: center; } .back-home span { display: none; } }
 .icon-btn { width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 12px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); }
 .icon-btn:hover:not(:disabled) { background: rgba(40, 38, 36, 0.8); }
 .icon-btn.on { background: var(--accent); color: var(--accent-ink); }
