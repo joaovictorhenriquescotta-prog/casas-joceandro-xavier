@@ -14,7 +14,7 @@ export const FACADE_COLORS: FacadeColor[] = [
   { id: 'original', name: 'Laranja (original)', color: '#d98a45', image: '/hero.jpg' },
   { id: 'azul-marinho', name: 'Azul-marinho', color: '#3b4c5a', image: '/cores/azul-marinho.jpg' },
   { id: 'bege-e-neutros', name: 'Bege e neutros', color: '#c3aa8d', image: '/cores/bege-e-neutros.jpg' },
-  { id: 'cinza-e-preto', name: 'Cinza e preto', color: '#666362', image: '/cores/cinza-e-preto.jpg' },
+  { id: 'cinza-e-preto', name: 'Branco, cinza e preto', color: '#6d6b6a', image: '/cores/cinza-e-preto.jpg' },
   { id: 'terracota-rosada', name: 'Terracota rosada', color: '#ab6c5d', image: '/cores/terracota-rosada.jpg' },
   { id: 'verde-oliva', name: 'Verde-oliva', color: '#656234', image: '/cores/verde-oliva.jpg' },
 ];

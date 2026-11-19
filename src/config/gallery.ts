@@ -14,7 +14,7 @@ export const GALLERY: GalleryImage[] = [
   { file: '42', caption: 'Vista aérea das duas casas na esquina' },
   { file: '43', caption: 'Opção de cores: Azul-marinho' },
   { file: '44', caption: 'Opção de cores: Bege e neutros' },
-  { file: '47', caption: 'Opção de cores: Cinza e preto' },
+  { file: '47', caption: 'Opção de cores: Branco, cinza e preto' },
   { file: '45', caption: 'Opção de cores: Terracota rosada' },
   { file: '46', caption: 'Opção de cores: Verde-oliva' },
   { file: '16', caption: 'Casa 1: garagem e entrada' },
