@@ -43,6 +43,8 @@ export interface ProcessOptions {
    * triângulos (somando as repetições). Paredes, pisos, lajes, portas e terreno nunca são simplificados. 0 desliga (padrão: 8000).
    */
   simplifyAbove?: number;
+  /** Cor média e variação (0–1) de uma imagem; com ela, texturas quase lisas de objetos decorativos viram cor. */
+  textureStats?: (data: Uint8Array, mimeType: string) => Promise<{ mean: number[]; std: number } | null>;
   /** Retira as plantas do modelo (padrão: true). */
   removeVegetation?: boolean;
   /** Aplica compressão Meshopt na geometria (padrão: true). */
@@ -287,6 +289,10 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   }
   log(`Lajes de cobertura separadas: ${roofs}`);
 
+  // 7c. Materiais decorativos repetidos ---------------------------------------------
+  await doc.transform(dedup({ propertyTypes: ['Texture'] }));
+  if (opts.textureStats) log(`Texturas lisas trocadas pela cor: ${await flattenPlainTextures(doc, opts.textureStats)}`);
+
   // 8. Otimização sem alterar geometria ---------------------------------------------
   const keep = /^(DOOR|ROOF)__/;
   for (const node of root.listNodes()) if (!keep.test(node.getName())) node.setName('');
@@ -298,11 +304,15 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   }
   await doc.transform(join({ keepNamed: true }));
   await simplifyDecor(doc, opts.simplifyAbove ?? 8000, log);
+  // depois de simplificar cada material separadamente (unir antes muda o que é simplificado e superfícies coladas brigam)
+  log(`Materiais decorativos unidos: ${mergeDecorMaterials(doc)}`);
+  await doc.transform(join({ keepNamed: true }));
   await doc.transform(
     weld(),
     dedup({ keepUniqueNames: true }),
     prune({ keepAttributes: true }),
   );
+  log(`Normais inválidas corrigidas: ${fixZeroNormals(doc)}`);
   if (opts.compressTextures) await opts.compressTextures(doc);
   if (opts.meshopt !== false) {
     await MeshoptEncoder.ready;
@@ -635,6 +645,80 @@ async function simplifyDecor(doc: Document, limit: number, log: Log) {
   }
   log(`Objetos decorativos simplificados: ${Math.round(before / 1000)} mil → ${Math.round(after / 1000)} mil triângulos`);
   if (report.length) log('  ' + report.join(' · '));
+}
+
+/**
+ * Modelos de biblioteca trazem milhares de materiais quase iguais ([Color_008]1…7, *12, Material~3…); cada um vira uma
+ * chamada de desenho e o 3D fica lento para abrir e para mover. Materiais decorativos (sem elemento personalizável,
+ * sem luz, sem vidro) com a mesma textura e cor muito próxima (diferença < 3%) passam a ser um só.
+ */
+function mergeDecorMaterials(doc: Document): number {
+  const q = (v: number, step: number) => Math.round(v / step);
+  const canon = new Map<string, Material>();
+  let merged = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const m = prim.getMaterial();
+      if (!m) continue;
+      if (!isDecor(m)) continue;
+      const c = m.getBaseColorFactor(), e = m.getEmissiveFactor();
+      const key = [
+        m.getBaseColorTexture()?.getImage()?.byteLength ?? 'x', m.getBaseColorTexture() ? doc.getRoot().listTextures().indexOf(m.getBaseColorTexture()!) : -1,
+        q(Math.sqrt(c[0]), 0.03), q(Math.sqrt(c[1]), 0.03), q(Math.sqrt(c[2]), 0.03), q(c[3], 0.1),
+        q(m.getMetallicFactor(), 0.2), q(m.getRoughnessFactor(), 0.15), e.map((x) => q(x, 0.1)).join(','),
+        m.getAlphaMode(), m.getDoubleSided(), !!m.getNormalTexture(),
+      ].join('|');
+      const k = canon.get(key);
+      if (!k) { canon.set(key, m); continue; }
+      if (k !== m) { prim.setMaterial(k); merged++; }
+    }
+  }
+  return merged;
+}
+
+const KEEP_MATERIAL = /^(PAREDE|PISO|PORTA_ENTRADA)_|shtora|TINTA|BIANCOGRES|Elizabeth|GRANITO|Granito|CALACATA|Padrão SketchUp/;
+const isDecor = (m: Material) => {
+  const ex = m.getExtras() as Record<string, unknown>;
+  return !ex.element && !ex.emissiveRole && !ex.surface && !KEEP_MATERIAL.test(m.getName()) && m.getAlphaMode() === 'OPAQUE';
+};
+
+/** Em objetos decorativos, texturas de cor quase uniforme (variação < 7%) viram a cor média. */
+async function flattenPlainTextures(doc: Document, stats: NonNullable<ProcessOptions['textureStats']>): Promise<number> {
+  const cache = new Map<Texture, { mean: number[]; std: number } | null>();
+  let n = 0;
+  for (const m of doc.getRoot().listMaterials()) {
+    const tex = m.getBaseColorTexture();
+    if (!tex || !isDecor(m)) continue;
+    if (!cache.has(tex)) cache.set(tex, await stats(tex.getImage()!, tex.getMimeType()));
+    const s = cache.get(tex);
+    if (!s || s.std > 0.07) continue;
+    const c = m.getBaseColorFactor();
+    // a textura está em sRGB; o fator é linear
+    const lin = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    m.setBaseColorFactor([c[0] * lin(s.mean[0]), c[1] * lin(s.mean[1]), c[2] * lin(s.mean[2]), c[3]]).setBaseColorTexture(null);
+    n++;
+  }
+  return n;
+}
+
+/** Normais de comprimento zero (triângulos degenerados) viram NaN no shader e manchas pretas com o bloom. */
+function fixZeroNormals(doc: Document): number {
+  let fixed = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const n = prim.getAttribute('NORMAL');
+      if (!n) continue;
+      const v = [0, 0, 0];
+      for (let i = 0; i < n.getCount(); i++) {
+        n.getElement(i, v);
+        const l = Math.hypot(v[0], v[1], v[2]);
+        if (l > 0.5 && Number.isFinite(l)) continue;
+        n.setElement(i, l > 1e-6 && Number.isFinite(l) ? [v[0] / l, v[1] / l, v[2] / l] : [0, 1, 0]);
+        fixed++;
+      }
+    }
+  }
+  return fixed;
 }
 
 /** Retira cada planta inteira: sobe da malha com folhas até o maior grupo em que folhas são ≥ 35% dos triângulos. */

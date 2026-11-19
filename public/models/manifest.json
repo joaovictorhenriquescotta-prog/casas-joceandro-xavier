@@ -1,13 +1,13 @@
 {
-  "current": "v2",
+  "current": "v3",
   "versions": [
     {
-      "id": "v2",
-      "url": "/models/v2/model.glb",
+      "id": "v3",
+      "url": "/models/v3/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
       "createdAt": "2026-11-19T05:30:00Z",
       "status": "publicado",
-      "notes": "Modelo de 19/11 sem vegetação, objetos decorativos simplificados"
+      "notes": "Modelo de 19/11 sem vegetação, objetos e materiais decorativos otimizados"
     }
   ]
 }

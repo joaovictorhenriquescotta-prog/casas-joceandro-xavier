@@ -96,7 +96,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - `api/` (funções da Vercel, imports relativos **com extensão `.js`**, obrigatório em ESM):
   `login.ts`, `manifest.ts` (GET público / POST admin: add, publish, archive, delete), `upload.ts` (token de envio
   direto para o Blob), `configs.ts`, `_lib.ts` (token HMAC de 12 h, manifestos versionados em `manifests/`).
-- Modelo publicado com o código: `public/models/v2/model.glb` + `model.meta.json`; manifesto estático
+- Modelo publicado com o código: `public/models/v3/model.glb` + `model.meta.json`; manifesto estático
   `public/models/manifest.json` (usado quando não há Blob).
 
 ## 7. Estado atual (18/11/2026)
@@ -119,7 +119,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
    ("Restaurar").
 4. Para não quebrar nada: manter pisos como grupos `PISO - <AMBIENTE> <área> m²`, folhas de porta separadas do
    batente, e os nomes dos materiais personalizáveis.
-- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v2/model.glb`
+- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v3/model.glb`
 
 ## 9. Limitações conhecidas
 
@@ -210,3 +210,10 @@ original do GLB está nos arquivos do projeto no Claude.
 - Modelo agora em `public/models/v2/` (manifesto aponta para v2). **Ao trocar o modelo, usar uma pasta nova (v3…)**:
   os navegadores guardam `/models/...` por até 1 dia (stale-while-revalidate), então o mesmo endereço mostra o antigo.
 - Os dois carros (Casa 1 cinza-escuro, Casa 2 branco) vêm assim do SketchUp/renders.
+- (19/11, 02:50) GLB atualizado pela Hellena (02:44) reprocessado → `public/models/v3/`. Desempenho: o GLB tinha
+  2.606 materiais (6× mais chamadas de desenho que a v1, ~14 s para abrir e risco de piscar). O pipeline agora troca
+  texturas quase lisas de objetos decorativos pela cor média (`textureStats`, só na CLI com sharp), une materiais
+  decorativos com cor muito próxima (`mergeDecorMaterials`, depois da simplificação) e corrige normais de
+  comprimento zero (`fixZeroNormals`, viravam manchas pretas com o bloom). Resultado: 804 materiais, 35 MB, menos
+  chamadas de desenho que a v1, abertura como a v1. O painel /admin (navegador) não tem `textureStats`: modelos
+  enviados por lá ficam mais pesados; prefira a CLI.

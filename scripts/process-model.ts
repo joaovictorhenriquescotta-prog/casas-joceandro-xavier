@@ -14,7 +14,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, extname, dirname } from 'node:path';
 import { processModel } from '../src/pipeline/process';
 
-const [input, texDir, output = 'public/models/v2/model.glb'] = process.argv.slice(2);
+const [input, texDir, output = 'public/models/v3/model.glb'] = process.argv.slice(2);
 if (!input) {
   console.error('uso: tsx scripts/process-model.ts <entrada.glb> [pasta-de-texturas] [saida.glb]');
   process.exit(1);
@@ -49,6 +49,13 @@ async function main() {
   console.time('processamento');
   const meta = await processModel(doc, {
     textureOverrides: overrides,
+    textureStats: async (data) => {
+      try {
+        const st = await sharp(Buffer.from(data), { limitInputPixels: false }).resize(64, 64, { fit: 'fill' }).removeAlpha().stats();
+        const [r, g, b] = st.channels;
+        return { mean: [r.mean / 255, g.mean / 255, b.mean / 255], std: Math.max(r.stdev, g.stdev, b.stdev) / 255 };
+      } catch { return null; }
+    },
     hasTransparency: async (data) => {
       try {
         const img = sharp(data);
