@@ -96,7 +96,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - `api/` (funções da Vercel, imports relativos **com extensão `.js`**, obrigatório em ESM):
   `login.ts`, `manifest.ts` (GET público / POST admin: add, publish, archive, delete), `upload.ts` (token de envio
   direto para o Blob), `configs.ts`, `_lib.ts` (token HMAC de 12 h, manifestos versionados em `manifests/`).
-- Modelo publicado com o código: `public/models/v3/model.glb` + `model.meta.json`; manifesto estático
+- Modelo publicado com o código: `public/models/v4/model.glb` + `model.meta.json`; manifesto estático
   `public/models/manifest.json` (usado quando não há Blob).
 
 ## 7. Estado atual (18/11/2026)
@@ -119,7 +119,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
    ("Restaurar").
 4. Para não quebrar nada: manter pisos como grupos `PISO - <AMBIENTE> <área> m²`, folhas de porta separadas do
    batente, e os nomes dos materiais personalizáveis.
-- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v3/model.glb`
+- Pela linha de comando: `NODE_OPTIONS=--max-old-space-size=8192 npx tsx scripts/process-model.ts entrada.glb [pasta-texturas] public/models/v4/model.glb`
 
 ## 9. Limitações conhecidas
 
@@ -210,7 +210,7 @@ original do GLB está nos arquivos do projeto no Claude.
 - Modelo agora em `public/models/v2/` (manifesto aponta para v2). **Ao trocar o modelo, usar uma pasta nova (v3…)**:
   os navegadores guardam `/models/...` por até 1 dia (stale-while-revalidate), então o mesmo endereço mostra o antigo.
 - Os dois carros (Casa 1 cinza-escuro, Casa 2 branco) vêm assim do SketchUp/renders.
-- (19/11, 02:50) GLB atualizado pela Hellena (02:44) reprocessado → `public/models/v3/`. Desempenho: o GLB tinha
+- (19/11, 02:50) GLB atualizado pela Hellena (02:44) reprocessado → `public/models/v4/`. Desempenho: o GLB tinha
   2.606 materiais (6× mais chamadas de desenho que a v1, ~14 s para abrir e risco de piscar). O pipeline agora troca
   texturas quase lisas de objetos decorativos pela cor média (`textureStats`, só na CLI com sharp), une materiais
   decorativos com cor muito próxima (`mergeDecorMaterials`, depois da simplificação) e corrige normais de
@@ -221,3 +221,4 @@ original do GLB está nos arquivos do projeto no Claude.
 - Celular em pé: paleta "Cores da fachada" abre fixa no canto direito, logo abaixo da imagem; o texto começa abaixo da imagem + paleta e rola em telas baixas (iPhone SE).
 - Galeria: tocar na imagem (ou no botão de tela cheia) abre `src/ui/ImageViewer.tsx`: tela cheia, pinça, toque duplo 2,5x, roda do mouse, arrastar, deslizar troca de imagem, Voltar do celular fecha.
 - Paredes invisíveis: no SketchUp todo material é dupla face e muitas faces sem pintura estão invertidas. `useModel.ts` põe `side = DoubleSide` em todos os materiais e o material "Padrão SketchUp" do pipeline já sai `doubleSided`.
+- `simplifyDecor` nunca simplifica "Padrão SketchUp", concreto/bloco/asfalto nem peças com faces > 0,5 m² (`hasLargeFaces`): eram paredes sem material e a simplificação abria buracos (paredes "transparentes"). Modelo publicado em models/v4.

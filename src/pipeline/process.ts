@@ -614,10 +614,28 @@ export type { Accessor };
  * cada material decorativo acima do limite é simplificado com desvio máximo de ~2,5 cm. Paredes, pisos, lajes,
  * portas, fachada, muros, vidros e terreno nunca são simplificados.
  */
+/** a peça tem faces do tamanho de parede/laje (> 0,5 m²)? Objetos decorativos têm faces pequenas. */
+function hasLargeFaces(prim: Primitive): boolean {
+  const pos = prim.getAttribute('POSITION')!;
+  const idx = prim.getIndices();
+  const n = idx ? idx.getCount() : pos.getCount();
+  const a = [0, 0, 0], b = [0, 0, 0], c = [0, 0, 0];
+  let big = 0;
+  for (let i = 0; i < n; i += 3) {
+    pos.getElement(idx ? idx.getScalar(i) : i, a);
+    pos.getElement(idx ? idx.getScalar(i + 1) : i + 1, b);
+    pos.getElement(idx ? idx.getScalar(i + 2) : i + 2, c);
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    const area = Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]) / 2;
+    if (area > 0.5 && ++big >= 8) return true;
+  }
+  return false;
+}
+
 async function simplifyDecor(doc: Document, limit: number, log: Log) {
   if (limit <= 0) return;
   await MeshoptSimplifier.ready;
-  const arch = /^(PAREDE|PISO|ROOF|DOOR)|TINTA|MURO|Muro|LAJE|TERRENO|terreno|vidro|Vidro|VIDRO|Glass|glass|ESQUADR|esquadr|Esquadr|BIANCOGRES|GRANITO|Granito|CALACATA|LR_LED/;
+  const arch = /^(PAREDE|PISO|ROOF|DOOR)|TINTA|MURO|Muro|LAJE|TERRENO|terreno|vidro|Vidro|VIDRO|Glass|glass|ESQUADR|esquadr|Esquadr|BIANCOGRES|GRANITO|Granito|CALACATA|LR_LED|Padrão SketchUp|Bloco|Concreto|CONCRETO|Cinza Puro|ASFALTO/;
   const triCount = (p: Primitive) => (p.getIndices()?.getCount() ?? p.getAttribute('POSITION')?.getCount() ?? 0) / 3;
   let before = 0, after = 0;
   const report: string[] = [];
@@ -627,6 +645,8 @@ async function simplifyDecor(doc: Document, limit: number, log: Log) {
       const name = prim.getMaterial()?.getName() ?? '';
       const tris = triCount(prim);
       if (tris <= limit || prim.getMode() !== 4 || arch.test(name)) continue;
+      // paredes/lajes sem material próprio: superfícies grandes não podem perder triângulos (abririam buracos)
+      if (hasLargeFaces(prim)) continue;
       const pos = prim.getAttribute('POSITION')!;
       const lo = pos.getMin([0, 0, 0]), hi = pos.getMax([0, 0, 0]);
       const diag = Math.hypot(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) || 1;
