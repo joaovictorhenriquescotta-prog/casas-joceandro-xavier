@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { GALLERY, galleryUrl } from '../config/gallery';
 import { Icon } from './icons';
+import { ImageViewer } from './ImageViewer';
 
 export function Gallery({ onClose }: { onClose: () => void }) {
   const [index, setIndex] = useState(0);
+  const [full, setFull] = useState(false);
   const touchX = useRef<number | null>(null);
   const thumbs = useRef<HTMLDivElement>(null);
   const total = GALLERY.length;
@@ -12,6 +14,7 @@ export function Gallery({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       if (e.key === 'Escape') onClose();
       else if (e.key === 'ArrowRight') go(1);
       else if (e.key === 'ArrowLeft') go(-1);
@@ -45,11 +48,14 @@ export function Gallery({ onClose }: { onClose: () => void }) {
         }}
       >
         <button className="gallery-nav prev" onClick={() => go(-1)} aria-label="Imagem anterior">‹</button>
-        <img key={image.file} src={galleryUrl(image.file)} alt={image.caption} />
+        <img key={image.file} src={galleryUrl(image.file)} alt={image.caption} onClick={() => setFull(true)} title="Ver em tela cheia" />
+        <button className="gallery-full" onClick={() => setFull(true)} aria-label="Ver em tela cheia"><Icon.full /></button>
         <button className="gallery-nav next" onClick={() => go(1)} aria-label="Próxima imagem">›</button>
       </div>
 
       <p className="gallery-caption">{image.caption}<span>Imagens ilustrativas</span></p>
+
+      {full && <ImageViewer src={galleryUrl(image.file)} alt={image.caption} onClose={() => setFull(false)} onStep={go} />}
 
       <div className="gallery-thumbs" ref={thumbs}>
         {GALLERY.map((g, i) => (

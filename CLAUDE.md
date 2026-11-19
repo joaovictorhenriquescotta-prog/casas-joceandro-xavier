@@ -218,3 +218,5 @@ original do GLB está nos arquivos do projeto no Claude.
   chamadas de desenho que a v1, abertura como a v1. O painel /admin (navegador) não tem `textureStats`: modelos
   enviados por lá ficam mais pesados; prefira a CLI.
 - Tela inicial no celular em pé (`max-aspect-ratio: 1/1`): imagem inteira das casas (150vw, no alto) sobre a mesma imagem desfocada, sem o zoom lento; `--img` em `.intro-bg-layer`.
+- Celular em pé: paleta "Cores da fachada" abre fixa no canto direito, logo abaixo da imagem; o texto começa abaixo da imagem + paleta e rola em telas baixas (iPhone SE).
+- Galeria: tocar na imagem (ou no botão de tela cheia) abre `src/ui/ImageViewer.tsx`: tela cheia, pinça, toque duplo 2,5x, roda do mouse, arrastar, deslizar troca de imagem, Voltar do celular fecha.
