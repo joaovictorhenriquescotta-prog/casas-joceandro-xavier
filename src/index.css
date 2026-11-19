@@ -24,7 +24,22 @@ input { font: inherit; }
 
 /* ------------------------------ Tela inicial ------------------------------ */
 .intro { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; }
-.intro-bg { position: absolute; inset: 0; background-size: cover; background-position: center 40%; transform: scale(1.04); animation: kb 22s ease-out forwards; }
+.intro-bg { position: absolute; inset: 0; transform: scale(1.04); animation: kb 22s ease-out forwards; }
+.intro-bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center 40%; animation: bgfade 0.9s ease both; }
+.intro-bg-layer:first-child { animation: none; }
+@keyframes bgfade { from { opacity: 0; } }
+.btn-secondary.on { border-color: var(--accent); }
+.intro-palette { margin: 16px 0 4px; display: flex; width: fit-content; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); max-width: 100%; animation: gfade 0.25s; }
+.intro-palette-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { position: relative; width: 38px; height: 38px; border-radius: 50%; padding: 0; background: var(--sw); border: 2px solid rgba(255, 255, 255, 0.35); transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
+.swatch:hover { transform: scale(1.08); }
+.swatch.on { border-color: #fff; box-shadow: 0 0 0 3px var(--accent); }
+.swatch.busy::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid transparent; border-top-color: #fff; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.intro-palette-name { margin: 0; font-size: 14px; }
+.intro-palette-name span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+@media (max-width: 600px) { .swatch { width: 34px; height: 34px; } .intro-palette-swatches { gap: 8px; } }
+@media (prefers-reduced-motion: reduce) { .intro-bg-layer { animation-duration: 0.01s; } }
 @keyframes kb { to { transform: scale(1.12); } }
 .intro-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 9, 8, 0.15) 0%, rgba(10, 9, 8, 0.2) 40%, rgba(10, 9, 8, 0.88) 100%); }
 .intro-content { position: relative; padding: clamp(24px, 6vw, 80px); max-width: 760px; }

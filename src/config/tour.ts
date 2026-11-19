@@ -53,6 +53,38 @@ export const ROOM_SHOTS: Record<string, Shot[]> = {
     { src: v('garagem-2'), caption: 'Garagem por outro ângulo', from: { s: 1.1, fx: 0.42, fy: 0.55 }, to: { s: 1.0, fx: 0.55, fy: 0.55 } },
     { src: v('garagem-3'), caption: 'Garagem e canteiro lateral', from: { s: 1.0, fx: 0.45, fy: 0.55 }, to: { s: 1.12, fx: 0.55, fy: 0.55 } },
   ],
+
+  // Renders de cada casa (pasta "renders/AQUI REALMENTE ESTAO AS FINAIS"). Casa 1 = esquerda da planta.
+  'casa1-garagem': [
+    { src: v('c1-garagem-1'), caption: 'Garagem e entrada da casa', from: { s: 1.0, fx: 0.5, fy: 0.55 }, to: { s: 1.1, fx: 0.42, fy: 0.55 } },
+    { src: v('c1-garagem-2'), caption: 'Garagem, jardim e portão', from: { s: 1.08, fx: 0.4, fy: 0.5 }, to: { s: 1.0, fx: 0.5, fy: 0.5 } },
+    { src: v('c1-garagem-3'), caption: 'Fachada com iluminação indireta', from: { s: 1.0, fx: 0.5, fy: 0.5 }, to: { s: 1.1, fx: 0.55, fy: 0.5 } },
+  ],
+  'casa1-estar': [
+    { src: v('c1-sala'), caption: 'Sala de estar integrada à cozinha', from: { s: 1.0, fx: 0.45, fy: 0.5 }, to: { s: 1.1, fx: 0.5, fy: 0.52 } },
+    { src: v('c1-jantar'), caption: 'Cozinha e jantar', from: { s: 1.08, fx: 0.5, fy: 0.5 }, to: { s: 1.0, fx: 0.5, fy: 0.5 } },
+    { src: v('c1-cozinha-sala'), caption: 'Cozinha vista da sala', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.5, fy: 0.5 } },
+    { src: v('c1-cozinha'), caption: 'Cozinha', from: { s: 1.1, fx: 0.4, fy: 0.5 }, to: { s: 1.0, fx: 0.45, fy: 0.5 } },
+  ],
+  'casa1-banheiro': [{ src: v('c1-banheiro'), caption: 'Banheiro social' }],
+  'casa1-quarto': [{ src: v('c1-quarto'), caption: 'Quarto', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.62, fy: 0.55 } }],
+  'casa1-suite': [{ src: v('c1-suite'), caption: 'Suíte', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.62, fy: 0.55 } }],
+  'casa1-banho-suite': [{ src: v('c1-banho-suite'), caption: 'Banho da suíte', from: { s: 1.0, fx: 0.6, fy: 0.5 }, to: { s: 1.1, fx: 0.6, fy: 0.5 } }],
+  'casa2-garagem': [
+    { src: v('c2-garagem-1'), caption: 'Garagem e entrada da casa', from: { s: 1.0, fx: 0.55, fy: 0.55 }, to: { s: 1.1, fx: 0.5, fy: 0.55 } },
+    { src: v('c2-garagem-2'), caption: 'Fachada e jardim lateral', from: { s: 1.08, fx: 0.55, fy: 0.5 }, to: { s: 1.0, fx: 0.5, fy: 0.5 } },
+    { src: v('c2-garagem-3'), caption: 'Fachada vista da garagem', from: { s: 1.0, fx: 0.5, fy: 0.5 }, to: { s: 1.1, fx: 0.48, fy: 0.5 } },
+  ],
+  'casa2-estar': [
+    { src: v('c2-sala'), caption: 'Sala de estar com painel ripado', from: { s: 1.0, fx: 0.45, fy: 0.5 }, to: { s: 1.1, fx: 0.5, fy: 0.52 } },
+    { src: v('c2-jantar'), caption: 'Jantar e cozinha', from: { s: 1.08, fx: 0.5, fy: 0.5 }, to: { s: 1.0, fx: 0.5, fy: 0.5 } },
+    { src: v('c2-bancada'), caption: 'Bancada da cozinha', from: { s: 1.0, fx: 0.45, fy: 0.5 }, to: { s: 1.1, fx: 0.5, fy: 0.5 } },
+    { src: v('c2-cozinha'), caption: 'Cozinha', from: { s: 1.1, fx: 0.45, fy: 0.5 }, to: { s: 1.0, fx: 0.4, fy: 0.5 } },
+  ],
+  'casa2-banheiro': [{ src: v('c2-banheiro'), caption: 'Banheiro social' }],
+  'casa2-quarto': [{ src: v('c2-quarto'), caption: 'Quarto', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.62, fy: 0.55 } }],
+  'casa2-suite': [{ src: v('c2-suite'), caption: 'Suíte', from: { s: 1.0, fx: 0.5, fy: 0.5 }, to: { s: 1.1, fx: 0.48, fy: 0.55 } }],
+  'casa2-banho-suite': [{ src: v('c2-banho-suite'), caption: 'Banho da suíte' }],
 };
 
 /** Ordem da visita dentro de cada casa (próximo / anterior). */

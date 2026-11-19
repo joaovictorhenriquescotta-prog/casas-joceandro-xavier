@@ -148,8 +148,10 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
 - Áreas clicáveis geradas do modelo: `scripts/build-tour-plan.mjs` → `src/config/tourPlan.generated.ts` (calibração
   px = 1273 + 202,7·x, py = 3863 + 202,7·z sobre `Planta-Humanizada-Detalhe-8K.png`, conferida nas 12 salas).
 - Associação ambiente → renders: `src/config/tour.ts` (`ROOM_SHOTS`); imagens via `scripts/visita-imagem.mjs` em
-  `public/visita/`. **Só existem renders externos e da garagem**; os cômodos internos aparecem pela planta humanizada
-  em perspectiva + botão "Ver este ambiente em 3D". Os renders da garagem mostram a Casa 1 e são usados nas duas.
+  `public/visita/`. Todos os cômodos das duas casas têm render (pasta "renders/AQUI REALMENTE ESTAO AS FINAIS"); sem render, um cômodo aparece pela planta humanizada
+  em perspectiva + botão "Ver este ambiente em 3D". Garagem: renders próprios de cada casa (`casa1-garagem`, `casa2-garagem`).
+- Tela inicial: botão "Cores da fachada" (`src/config/facadeColors.ts`, imagens `public/cores/`) troca o fundo pelas
+  7 opções de cor (mesmo enquadramento). Galeria com 40 imagens (inclui interiores, `public/galeria/16–40`).
 - O modelo 3D agora só baixa quando pedido (`want3d` em `App.tsx`); `pendingRoom` no store abre o 3D direto no cômodo.
 - Origem das imagens: `JOCEANDRO\renders\FINAIS\` (8K). Os originais não são alterados.
 

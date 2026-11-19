@@ -174,6 +174,7 @@ export function Tour() {
   const startCycle = useCallback((s: Stop, from = 0) => {
     clearCycle();
     if (s.shots.length < 2) return;
+    for (const sh of s.shots) preload(sh.src);
     let i = from;
     const schedule = () => {
       cycle.current = window.setTimeout(async () => {
@@ -211,7 +212,8 @@ export function Tour() {
     }
     setStopIdx(null);
     setView('plan');
-    for (const s of Object.values(ROOM_SHOTS).flat()) preload(s.src);
+    // só a 1ª imagem de cada ambiente; as demais são baixadas ao entrar no ambiente
+    for (const list of Object.values(ROOM_SHOTS)) if (list[0]) preload(list[0].src);
   }, [applyCam, env.reduced, planCam, runFlight]);
 
   const runOpening = useCallback(async () => {
