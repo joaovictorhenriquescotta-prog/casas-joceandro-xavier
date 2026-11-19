@@ -232,7 +232,7 @@ original do GLB está nos arquivos do projeto no Claude.
 - Nunca renomear/excluir o projeto na Vercel, nunca tirar esse domínio do projeto e a página inicial (/) deve sempre abrir o site. Se um dia houver domínio próprio, manter o .vercel.app ativo (redirecionando).
 
 ## Pastas do projeto (desde 19/11/2026)
-Raiz: `C:UsersjoaovOneDriveÁrea de TrabalhoSITE REALISTA PROJETO JOCEANDRO`
+Raiz: `C:/Users/joaov/OneDrive/Área de Trabalho/SITE REALISTA PROJETO JOCEANDRO`
 - `casas-joceandro-xavier/`: este repositório.
 - `1) 3D/`: `TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb` (entrada do pipeline), .skp/.skb e `texturas/`.
   Processar: `npx tsx scripts/process-model.ts "../1) 3D/TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb" "../1) 3D/texturas" public/models/vN/model.glb` (sempre pasta nova vN).
