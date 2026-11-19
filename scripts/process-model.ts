@@ -14,7 +14,7 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, extname, dirname } from 'node:path';
 import { processModel } from '../src/pipeline/process';
 
-const [input, texDir, output = 'public/models/v7/model.glb'] = process.argv.slice(2);
+const [input, texDir, output = 'public/models/v8/model.glb'] = process.argv.slice(2);
 if (!input) {
   console.error('uso: tsx scripts/process-model.ts <entrada.glb> [pasta-de-texturas] [saida.glb]');
   process.exit(1);
