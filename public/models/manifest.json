@@ -1,13 +1,13 @@
 {
-  "current": "v8",
+  "current": "v9",
   "versions": [
     {
-      "id": "v8",
-      "url": "/models/v8/model.glb",
+      "id": "v9",
+      "url": "/models/v9/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
-      "createdAt": "2026-11-19T15:35:00Z",
+      "createdAt": "2026-11-19T17:30:00Z",
       "status": "publicado",
-      "notes": "GLB de 19/11 12:32 (porta pintada); porcelanato Cristallo do banheiro deixou de ser tratado como vidro"
+      "notes": "GLB de 19/11 12:32; posições com 16 bits (caixilhos sem distorção)"
     }
   ]
 }

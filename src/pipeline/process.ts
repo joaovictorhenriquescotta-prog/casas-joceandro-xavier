@@ -317,7 +317,8 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   if (opts.compressTextures) await opts.compressTextures(doc);
   if (opts.meshopt !== false) {
     await MeshoptEncoder.ready;
-    await doc.transform(meshopt({ encoder: MeshoptEncoder, level: 'medium' }));
+    // 16 bits nas posições: com 14 (padrão) o erro chegava a milímetros nas peças grandes e entortava caixilhos finos
+    await doc.transform(meshopt({ encoder: MeshoptEncoder, level: 'medium', quantizePosition: 16 }));
   }
 
   // 9. Metadados --------------------------------------------------------------------

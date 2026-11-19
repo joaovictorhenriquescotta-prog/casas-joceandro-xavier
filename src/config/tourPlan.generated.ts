@@ -1,4 +1,4 @@
-// Arquivo gerado por scripts/build-tour-plan.mjs a partir de public/models/v8/model.meta.json. Não edite à mão.
+// Arquivo gerado por scripts/build-tour-plan.mjs a partir de public/models/v9/model.meta.json. Não edite à mão.
 // Coordenadas em pixels da planta humanizada (8192 x 2844).
 export interface PlanRoom { id: string; house: string; type: string; label: string; area: number; path: string; anchor: [number, number]; box: [number, number, number, number] }
 export interface PlanHouse { id: string; label: string; box: [number, number, number, number] }
