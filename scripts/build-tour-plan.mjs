@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const [AX, AZ, S] = (process.env.CAL ?? '1124.3,4487.3,231.89').split(',').map(Number);
 const W = 8192, H = 2844;
 
-const metaPath = process.argv[2] ?? 'public/models/v5/model.meta.json';
+const metaPath = process.argv[2] ?? 'public/models/v6/model.meta.json';
 const meta = JSON.parse(readFileSync(metaPath, 'utf8'));
 const P = (x, z) => [AX + S * x, AZ + S * z];
 const key = (p) => `${Math.round(p[0])},${Math.round(p[1])}`;

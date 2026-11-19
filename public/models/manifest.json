@@ -1,13 +1,13 @@
 {
-  "current": "v5",
+  "current": "v6",
   "versions": [
     {
-      "id": "v5",
-      "url": "/models/v5/model.glb",
+      "id": "v6",
+      "url": "/models/v6/model.glb",
       "fileName": "TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb",
-      "createdAt": "2026-11-19T14:35:00Z",
+      "createdAt": "2026-11-19T15:00:00Z",
       "status": "publicado",
-      "notes": "GLB de 19/11 11:32 (paredes do banheiro pintadas no SketchUp); sem vegetação, decorativos otimizados, paredes preservadas"
+      "notes": "GLB de 19/11 11:56 (paredes pintadas no SketchUp); sem vegetação, decorativos otimizados, paredes preservadas"
     }
   ]
 }
