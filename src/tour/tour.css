@@ -11,7 +11,7 @@
 .view-plan .tour-hot { pointer-events: auto; }
 .tour-hot path { fill: rgba(201, 162, 107, 0); stroke: rgba(255, 244, 225, 0); stroke-width: 1.5; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill 0.25s, stroke 0.25s; }
 .tour-hot path.on { fill: rgba(201, 162, 107, 0.24); stroke: rgba(255, 236, 205, 0.95); }
-.view-moving .tour-hot path.current { fill: rgba(201, 162, 107, 0.12); stroke: rgba(255, 236, 205, 0.6); transition-duration: 1.2s; }
+.view-moving .tour-hot path.current { fill: rgba(201, 162, 107, 0.2); stroke: rgba(255, 240, 215, 0.95); stroke-width: 2.5; transition-duration: 0.8s; }
 
 /* palco das renderizações */
 .tour-stage { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; isolation: isolate; }

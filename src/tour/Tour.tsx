@@ -122,19 +122,20 @@ export function Tour() {
     const { w, h } = vpRef.current;
     const persp = perspectiveFor(w, h);
     // cômodos pequenos (banheiros) são vistos de um pouco mais alto, com o entorno
-    const pad = s.type === 'fachada' ? 1.05 : (s.area ?? 10) < 5 ? 1.75 : 1.32;
+    const pad = s.type === 'fachada' ? 1.05 : (s.area ?? 10) < 5 ? 1.5 : 1.25;
     // no celular em pé a vista fica girada 90°, como a planta: o lado comprido do cômodo acompanha a tela
     const base = h > w * 1.1 ? 90 : 0;
-    const yaw = env.reduced ? 0 : s.house === PLAN_HOUSES[0]?.id ? -5 : s.house ? 5 : 0;
+    const yaw = env.reduced ? 0 : s.house === PLAN_HOUSES[0]?.id ? -3 : s.house ? 3 : 0;
     const cx = (s.box[0] + s.box[2]) / 2, cy = (s.box[1] + s.box[3]) / 2;
-    const tilts = env.reduced ? [0] : [s.type === 'fachada' ? 46 : 34, 27, 20, 13, 6, 0];
+    // inclinação suave: com muita perspectiva a parte da frente da imagem estica e perde nitidez
+    const tilts = env.reduced ? [0] : [s.type === 'fachada' ? 20 : 16, 11, 6, 0];
     let best: Cam | null = null;
-    // aproximação máxima: no máximo ~2x os pixels da planta carregada, para não borrar
-    const zMax = env.k * 2;
+    // aproximação máxima: 1 pixel da planta carregada por pixel da tela (não amplia além da imagem)
+    const zMax = env.k;
     for (const tilt of tilts) {
       const f = fitBox(s.box, w, h, { pad, tilt, rot: base });
       const c0 = { ...f, z: Math.min(f.z, zMax) };
-      const lean = (tilt / 34) * 0.05;
+      const lean = (tilt / 16) * 0.03;
       const c = clamp({
         ...c0, rot: base + (tilt ? yaw : 0),
         ...(base ? { x: c0.x - (s.box[2] - s.box[0]) * lean } : { y: c0.y + (s.box[3] - s.box[1]) * lean }),
@@ -201,7 +202,7 @@ export function Tour() {
     setLetterbox(false);
     setTitle(false);
     if (animated && !env.reduced) {
-      applyCam({ ...target, z: target.z * 1.14, tilt: 26 });
+      applyCam({ ...target, z: target.z * 1.08, tilt: 12 });
       setPlanVisible(true);
       stage.current?.hide('fade', 1200);
       await runFlight(cam.current, target, 1900, { ease: easeOut });
@@ -258,22 +259,34 @@ export function Tour() {
     setSelected(null); setHover(null);
     setView('moving'); setStopIdx(idx); setShotIdx(0);
     const st = stage.current!;
+    const target = roomCam(s);
+    // já dentro de um render: passa direto para o render do próximo ambiente, sem voltar à planta
+    if (st.visible && s.shots.length && (await preloadWithin(s.shots[0].src, 8000))) {
+      if (!alive()) return;
+      applyCam(target);
+      await st.show(s.shots[0], 'fade', shotMs(s.shots[0]), 1000);
+      if (!alive()) return;
+      setView('room');
+      startCycle(s);
+      return;
+    }
     if (st.visible) { setPlanVisible(true); await st.hide('back', 900); }
     if (!alive()) return;
-    const target = roomCam(s);
     const from = cam.current;
     const fromPlan = from.tilt < 1;
     const dist = Math.hypot(target.x - from.x, target.y - from.y);
-    const ms = fromPlan ? 2600 : Math.min(2600, Math.max(1600, 1300 + dist * 0.45));
+    const ms = fromPlan ? 2000 : Math.min(2200, Math.max(1400, 1100 + dist * 0.4));
     await runFlight(from, target, ms, { arc: fromPlan ? 0 : Math.min(0.45, dist / 4200), ease: easeInOut });
     if (!alive()) return;
     if (s.shots.length && (await preloadWithin(s.shots[0].src, 8000))) {
       if (!alive()) return;
-      // o drone segue avançando e "atravessa" para dentro da renderização
-      runFlight(target, { ...target, z: target.z * 1.8, tilt: Math.min(target.tilt + 8, 56) }, 1200, { ease: (t) => t * t * t });
-      await wait(env.reduced ? 0 : 320);
-      setPlanVisible(false);
-      await st.show(s.shots[0], 'through', shotMs(s.shots[0]), 1300);
+      // o ambiente fica destacado na planta por um instante e o render entra com transição suave
+      await wait(env.reduced ? 0 : 450);
+      if (!alive()) return;
+      runFlight(target, { ...target, z: target.z * 1.04 }, 1100, { ease: easeOut });
+      const shown = st.show(s.shots[0], 'fade', shotMs(s.shots[0]), 1100);
+      setTimeout(() => alive() && setPlanVisible(false), 1100);
+      await shown;
       if (!alive()) return;
       setView('room');
       startCycle(s);

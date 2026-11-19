@@ -146,12 +146,13 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
   (aérea → principal → frontal → lote) → planta humanizada interativa → descida em perspectiva até o cômodo → render em
   tela cheia onde existe (fachada, garagem) → anterior/próximo, planta, fachada, encerrar. Detalhes no README.
 - Áreas clicáveis geradas do modelo: `scripts/build-tour-plan.mjs` → `src/config/tourPlan.generated.ts` (calibração
-  px = 1273 + 202,7·x, py = 3863 + 202,7·z sobre `Planta-Humanizada-Detalhe-8K.png`, conferida nas 12 salas).
+  px = 1124,3 + 231,89·x, py = 4487,3 + 231,89·z sobre `Planta-Humanizada-27-01-8K.png` (19/11), conferida nas 12 salas;
+  recalibrar com CAL=... e conferir com OVERLAY=..., ver o topo do script).
 - Associação ambiente → renders: `src/config/tour.ts` (`ROOM_SHOTS`); imagens via `scripts/visita-imagem.mjs` em
   `public/visita/`. Todos os cômodos das duas casas têm render (pasta "renders/AQUI REALMENTE ESTAO AS FINAIS"); sem render, um cômodo aparece pela planta humanizada
   em perspectiva + botão "Ver este ambiente em 3D". Garagem: renders próprios de cada casa (`casa1-garagem`, `casa2-garagem`).
 - Tela inicial: botão "Cores da fachada" (`src/config/facadeColors.ts`, imagens `public/cores/`) troca o fundo pelas
-  6 opções de cor (isométricos de "AQUI REALMENTE ESTAO AS FINAIS/FACHADA"; hero.jpg e og.jpg vêm do isométrico laranja). Galeria ("Ver imagens") só com as 32 imagens de "renders/AQUI REALMENTE ESTAO AS FINAIS" (`public/galeria/16–47`).
+  6 opções de cor (isométricos de "AQUI REALMENTE ESTAO AS FINAIS/FACHADA"; hero.jpg e og.jpg vêm do isométrico laranja). Galeria ("Ver imagens") só com as 35 imagens de "renders/AQUI REALMENTE ESTAO AS FINAIS" (`public/galeria/16–50`).
 - O modelo 3D agora só baixa quando pedido (`want3d` em `App.tsx`); `pendingRoom` no store abre o 3D direto no cômodo.
 - Origem das imagens: `JOCEANDRO\renders\FINAIS\` (8K). Os originais não são alterados.
 
@@ -183,3 +184,6 @@ original do GLB está nos arquivos do projeto no Claude.
 - Paisagismo: a cerca viva não fica a menos de 0,7 m de um cômodo (atravessava a parede do banho da suíte).
 - O GLB `TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb` (17/11 21:15) é o mesmo da v1; o .skp foi salvo depois (18/11 22:55).
   Se o SketchUp mudou, é preciso exportar um GLB novo e enviar pelo /admin.
+- Visita (19/11): abertura com os renders de dia (implantação aérea → isométrico → esquina → frente → planta 28-01 com o
+  lote); planta interativa nova (27-01). Entrada nos cômodos sem ampliar além da resolução da planta (zMax = env.k),
+  inclinação até 16° (20° na fachada) e render com transição suave; anterior/próximo troca direto de render para render.

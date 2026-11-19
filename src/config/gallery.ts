@@ -8,6 +8,9 @@ export interface GalleryImage {
 
 export const GALLERY: GalleryImage[] = [
   // FACHADA
+  { file: '48', caption: 'Vista frontal do muro e das casas' },
+  { file: '49', caption: 'Vista da esquina' },
+  { file: '50', caption: 'Implantação no lote de esquina' },
   { file: '42', caption: 'Vista aérea das duas casas na esquina' },
   { file: '43', caption: 'Opção de cores: Azul-marinho' },
   { file: '44', caption: 'Opção de cores: Bege e neutros' },

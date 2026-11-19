@@ -4,13 +4,13 @@
 //
 // Uso:  node scripts/build-tour-plan.mjs [caminho/model.meta.json]
 //
-// Calibração (planta "Casa-Joceandro-Planta-Humanizada-Detalhe-8K.png", 8192 x 2844 px, vista de cima ortogonal):
+// Calibração (planta "Casa-Joceandro-Planta-Humanizada-27-01-8K.png", 8192 x 2844 px, vista de cima ortogonal):
 //   px = AX + S * x      py = AZ + S * z      (x, z em metros no sistema do modelo)
 // Conferida sobrepondo os contornos às paredes da imagem. Se a planta for trocada por outra imagem,
-// recalibre estes quatro números.
+// recalibre (CAL="AX,AZ,S") e confira com OVERLAY="<planta>|<saida.jpg>" antes de gravar.
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const AX = 1273, AZ = 3863, S = 202.7;
+const [AX, AZ, S] = (process.env.CAL ?? '1124.3,4487.3,231.89').split(',').map(Number);
 const W = 8192, H = 2844;
 
 const metaPath = process.argv[2] ?? 'public/models/v1/model.meta.json';
@@ -108,5 +108,13 @@ export const PLAN_SIZE = { width: ${W}, height: ${H} } as const;
 export const PLAN_HOUSES: PlanHouse[] = ${JSON.stringify(houses)};
 export const PLAN_ROOMS: PlanRoom[] = ${JSON.stringify(rooms, null, 0).replace(/\},\{/g, '},\n  {')};
 `;
-writeFileSync('src/config/tourPlan.generated.ts', out);
+if (process.env.OVERLAY) {
+  // conferência: desenha os contornos sobre a imagem  (OVERLAY="<planta> <saida.jpg>")
+  const [img, dst] = process.env.OVERLAY.split('|');
+  const sharp = (await import('sharp')).default;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${rooms.map((r) => `<path d="${r.path}" fill="rgba(255,0,0,0.12)" stroke="red" stroke-width="10"/>`).join('')}</svg>`;
+  const base = await sharp(img, { limitInputPixels: false }).resize(W, H, { fit: "fill" }).png().toBuffer();
+  const merged = await sharp(base, { limitInputPixels: false }).composite([{ input: Buffer.from(svg) }]).png().toBuffer();
+  await sharp(merged, { limitInputPixels: false }).resize(2400).jpeg().toFile(dst);
+} else writeFileSync('src/config/tourPlan.generated.ts', out);
 console.log(rooms.map((r) => `${r.id}: laços=${(r.path.match(/M/g) || []).length} âncora=${r.anchor}`).join('\n'));

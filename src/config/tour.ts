@@ -31,27 +31,23 @@ export const PLAN_IMAGE = {
   loWidth: 4096,
 };
 
-/** Abertura: sobrevoo → aproximação → descida → fachada → subida até a planta. */
+/** Abertura (renders de dia com o entorno): implantação aérea → isométrico → esquina → frente → subida até a planta. */
 export const OPENING: Shot[] = [
-  { src: v('aerea'), from: { s: 1.0, fx: 0.55, fy: 0.46 }, to: { s: 1.22, fx: 0.55, fy: 0.44 }, ms: 4600 },
-  { src: v('principal'), from: { s: 1.02, fx: 0.55, fy: 0.36 }, to: { s: 1.14, fx: 0.55, fy: 0.5 }, ms: 4200 },
-  { src: v('frontal'), from: { s: 1.12, fx: 0.5, fy: 0.5 }, to: { s: 1.0, fx: 0.5, fy: 0.55 }, ms: 4400 },
+  { src: v('aerea-entorno'), from: { s: 1.0, fx: 0.48, fy: 0.5 }, to: { s: 1.14, fx: 0.44, fy: 0.55 }, ms: 4600 },
+  { src: v('isometrico'), from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.1, fx: 0.56, fy: 0.48 }, ms: 4400 },
+  { src: v('esquina-entorno'), from: { s: 1.08, fx: 0.4, fy: 0.45 }, to: { s: 1.0, fx: 0.46, fy: 0.45 }, ms: 4200 },
+  { src: v('frontal-entorno'), from: { s: 1.0, fx: 0.52, fy: 0.45 }, to: { s: 1.08, fx: 0.55, fy: 0.42 }, ms: 4200 },
 ];
-/** Imagem do lote inteiro, usada na subida do drone da fachada até a planta (aproxima até casar com a planta). */
-export const LOT_SHOT: Shot = { src: v('lote'), from: { s: 1.0, fx: 0.5, fy: 0.44 }, to: { s: 1.62, fx: 0.5, fy: 0.42 }, ms: 2600 };
+/** Planta humanizada com o lote inteiro: o drone sobe e se aproxima das casas antes da planta interativa. */
+export const LOT_SHOT: Shot = { src: v('lote'), from: { s: 1.0, fx: 0.52, fy: 0.45 }, to: { s: 1.3, fx: 0.545, fy: 0.36 }, ms: 2600 };
 
 /** Renders de cada ambiente, na ordem em que aparecem. */
 export const ROOM_SHOTS: Record<string, Shot[]> = {
   fachada: [
-    { src: v('frontal'), caption: 'Vista frontal', from: { s: 1.0, fx: 0.5, fy: 0.5 }, to: { s: 1.1, fx: 0.52, fy: 0.55 } },
-    { src: v('esquina'), caption: 'Vista da esquina', from: { s: 1.08, fx: 0.4, fy: 0.5 }, to: { s: 1.0, fx: 0.55, fy: 0.5 } },
-    { src: v('principal'), caption: 'As duas casas ao entardecer', from: { s: 1.0, fx: 0.55, fy: 0.45 }, to: { s: 1.12, fx: 0.52, fy: 0.5 } },
-    { src: v('aerea'), caption: 'Vista aérea', from: { s: 1.15, fx: 0.55, fy: 0.45 }, to: { s: 1.0, fx: 0.55, fy: 0.5 } },
-  ],
-  garagem: [
-    { src: v('garagem-1'), caption: 'Garagem e fachada', from: { s: 1.0, fx: 0.5, fy: 0.55 }, to: { s: 1.12, fx: 0.5, fy: 0.6 } },
-    { src: v('garagem-2'), caption: 'Garagem por outro ângulo', from: { s: 1.1, fx: 0.42, fy: 0.55 }, to: { s: 1.0, fx: 0.55, fy: 0.55 } },
-    { src: v('garagem-3'), caption: 'Garagem e canteiro lateral', from: { s: 1.0, fx: 0.45, fy: 0.55 }, to: { s: 1.12, fx: 0.55, fy: 0.55 } },
+    { src: v('frontal-entorno'), caption: 'Vista frontal', from: { s: 1.0, fx: 0.52, fy: 0.45 }, to: { s: 1.08, fx: 0.55, fy: 0.42 } },
+    { src: v('esquina-entorno'), caption: 'Vista da esquina', from: { s: 1.06, fx: 0.4, fy: 0.45 }, to: { s: 1.0, fx: 0.46, fy: 0.45 } },
+    { src: v('isometrico'), caption: 'As duas casas vistas do alto', from: { s: 1.0, fx: 0.55, fy: 0.5 }, to: { s: 1.08, fx: 0.56, fy: 0.48 } },
+    { src: v('aerea-entorno'), caption: 'Implantação no lote de esquina', from: { s: 1.08, fx: 0.44, fy: 0.55 }, to: { s: 1.0, fx: 0.48, fy: 0.5 } },
   ],
 
   // Renders de cada casa (pasta "renders/AQUI REALMENTE ESTAO AS FINAIS"). Casa 1 = esquerda da planta.
@@ -102,6 +98,6 @@ export const ROOM_NAMES: Record<string, string> = {
 };
 
 /** Ponto da fachada na planta (frente do lote, entre as duas casas), em px da planta 8192. */
-export const FACHADA_ON_PLAN = { anchor: [3930, 2560] as [number, number], box: [2250, 1950, 5620, 2844] as [number, number, number, number] };
+export const FACHADA_ON_PLAN = { anchor: [4153, 2690] as [number, number], box: [2286, 1900, 6020, 2844] as [number, number, number, number] };
 
 export const DEFAULT_SHOT_MS = 6500;
