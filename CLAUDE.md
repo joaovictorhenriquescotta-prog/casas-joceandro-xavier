@@ -228,5 +228,15 @@ original do GLB está nos arquivos do projeto no Claude.
 - `closeTiltedSashes` (process.ts) fecha no modelo processado as basculantes abertas no SketchUp dos ambientes em `CLOSE_SASH_ROOMS` (hoje só `banheiro` = banheiros sociais, pedido do cliente em 19/11). As dos banhos das suítes continuam abertas como no SketchUp; para fechá-las, acrescente `banho-suite`.
 
 ## QR code da placa do terreno (NÃO QUEBRAR)
-- A placa impressa aponta para https://casas-joceandro-xavier.vercel.app (raiz). Arquivos em JOCEANDRO/QR CODE PLACA.
+- A placa impressa aponta para https://casas-joceandro-xavier.vercel.app (raiz). Arquivos em `4) QR CODE PLACA` (ver Pastas abaixo).
 - Nunca renomear/excluir o projeto na Vercel, nunca tirar esse domínio do projeto e a página inicial (/) deve sempre abrir o site. Se um dia houver domínio próprio, manter o .vercel.app ativo (redirecionando).
+
+## Pastas do projeto (desde 19/11/2026)
+Raiz: `C:UsersjoaovOneDriveÁrea de TrabalhoSITE REALISTA PROJETO JOCEANDRO`
+- `casas-joceandro-xavier/`: este repositório.
+- `1) 3D/`: `TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb` (entrada do pipeline), .skp/.skb e `texturas/`.
+  Processar: `npx tsx scripts/process-model.ts "../1) 3D/TERRENO JOCEANDRO_COM_TOPOGRAFIA.glb" "../1) 3D/texturas" public/models/vN/model.glb` (sempre pasta nova vN).
+- `2) IMAGENS SKT PARA RENDERS/`, `3) RENDERS/` (renders finais por CASA 01, CASA 02, FACHADA, PLANTAS HUMANIZADAS; LIVRO.jpeg).
+- `4) QR CODE PLACA/`: QR da placa (SVG/PNG).
+- `PROJETO  VISUALIZADOR 3D/CONTEXTO-PROJETO.md`: histórico de tarefas.
+- Não usar Google Drive (G:) para o repositório: o nome com emoji quebra o npm e o Drive grava node_modules vazio.
