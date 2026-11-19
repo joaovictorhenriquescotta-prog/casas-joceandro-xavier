@@ -151,7 +151,7 @@ Metodologia em etapas (1 diagnóstico, 2 preparação do modelo, 3 experiência 
   `public/visita/`. Todos os cômodos das duas casas têm render (pasta "renders/AQUI REALMENTE ESTAO AS FINAIS"); sem render, um cômodo aparece pela planta humanizada
   em perspectiva + botão "Ver este ambiente em 3D". Garagem: renders próprios de cada casa (`casa1-garagem`, `casa2-garagem`).
 - Tela inicial: botão "Cores da fachada" (`src/config/facadeColors.ts`, imagens `public/cores/`) troca o fundo pelas
-  7 opções de cor (mesmo enquadramento). Galeria ("Ver imagens") só com as 31 imagens de "renders/AQUI REALMENTE ESTAO AS FINAIS" (`public/galeria/16–46`).
+  6 opções de cor (isométricos de "AQUI REALMENTE ESTAO AS FINAIS/FACHADA"; hero.jpg e og.jpg vêm do isométrico laranja). Galeria ("Ver imagens") só com as 32 imagens de "renders/AQUI REALMENTE ESTAO AS FINAIS" (`public/galeria/16–47`).
 - O modelo 3D agora só baixa quando pedido (`want3d` em `App.tsx`); `pendingRoom` no store abre o 3D direto no cômodo.
 - Origem das imagens: `JOCEANDRO\renders\FINAIS\` (8K). Os originais não são alterados.
 
