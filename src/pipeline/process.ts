@@ -76,11 +76,12 @@ export async function processModel(doc: Document, opts: ProcessOptions = {}): Pr
   await doc.transform(metalRough());
   // faces sem material no SketchUp ("Default"): no glTF viram metal branco (metallic 1),
   // que espelha o céu e o gramado. Usa o material padrão do SketchUp, fosco e claro.
+  // Dupla face como os demais materiais do SketchUp: muitas paredes sem pintura estão com a face invertida.
   let defaultMat: Material | null = null;
   for (const mesh of root.listMeshes())
     for (const prim of mesh.listPrimitives())
       if (!prim.getMaterial()) {
-        defaultMat ??= doc.createMaterial('Padrão SketchUp').setBaseColorFactor([0.93, 0.92, 0.9, 1]);
+        defaultMat ??= doc.createMaterial('Padrão SketchUp').setBaseColorFactor([0.93, 0.92, 0.9, 1]).setDoubleSided(true);
         prim.setMaterial(defaultMat);
       }
   if (opts.textureOverrides) {

@@ -47,6 +47,8 @@ function prepare(gltf: GLTF): LoadedModel {
       if (!m.userData.lookApplied) {
         // acabamentos aproximados aos renders (src/config/renderLook.ts)
         m.userData.lookApplied = true;
+        // no SketchUp todo material é visto dos dois lados; paredes com a face invertida sumiam (ficavam invisíveis)
+        m.side = THREE.DoubleSide;
         const look = lookFor(m.name);
         if (look?.color) m.color.set(look.color);
         if (look?.roughness !== undefined) m.roughness = look.roughness;
