@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './tour.css';
 import { useStore } from '../store';
-import { PROJECT } from '../config/project';
+import { PROJECT, whatsappUrl } from '../config/project';
 import {
   DEFAULT_SHOT_MS, FACHADA_ON_PLAN, LOT_SHOT, OPENING, PLAN_IMAGE, ROOM_NAMES, ROOM_ORDER, ROOM_SHOTS, type Shot, type Spot,
 } from '../config/tour';
@@ -543,6 +543,7 @@ export function Tour() {
           {(view === 'plan' || view === 'room' || view === 'moving') && (
             <button className="tour-icon" onClick={() => goTo(0)} aria-label="Voltar para a fachada" title="Fachada"><Icon.home /></button>
           )}
+          <a className="tour-icon wa" href={whatsappUrl()} target="_blank" rel="noreferrer" aria-label={PROJECT.contact.label} title={PROJECT.contact.label}><Icon.whatsapp /></a>
           <button className="tour-icon" onClick={close} aria-label="Encerrar visita" title="Encerrar"><Icon.close /></button>
         </div>
       </div>

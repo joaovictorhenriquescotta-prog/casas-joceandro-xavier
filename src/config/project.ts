@@ -13,7 +13,19 @@ export const PROJECT = {
     'Garagem coberta (22,27 m²)',
     'Fachada com fitas de LED e muro com faixa decorativa',
   ],
-  contact: { label: 'Fale com o corretor', whatsapp: '' },
+  /** Valor de venda de cada casa (as duas unidades têm o mesmo preço). */
+  price: 'R$ 450.000,00',
+  priceNote: 'cada casa',
+  contact: {
+    label: 'Fale conosco pelo WhatsApp',
+    /** (27) 99716-4677, no formato internacional exigido pelo wa.me */
+    whatsapp: '5527997164677',
+    message: 'Olá! Vi a visita virtual das Casas Joceandro Xavier e gostaria de mais informações.',
+  },
   disclaimer:
     'Imagens e acabamentos são simulações para fins de apresentação. A disponibilidade de materiais, cores e itens de decoração deve ser confirmada comercialmente. Mobiliário e paisagismo são ilustrativos.',
 };
+
+/** Link que abre a conversa no WhatsApp com a mensagem inicial já preenchida. */
+export const whatsappUrl = () =>
+  `https://wa.me/${PROJECT.contact.whatsapp}?text=${encodeURIComponent(PROJECT.contact.message)}`;

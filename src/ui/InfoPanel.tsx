@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import { PROJECT } from '../config/project';
+import { PROJECT, whatsappUrl } from '../config/project';
 import { Icon } from './icons';
 
 export function InfoPanel({ tab }: { tab: 'info' | 'ajuda' }) {
@@ -20,6 +20,7 @@ export function InfoPanel({ tab }: { tab: 'info' | 'ajuda' }) {
           <div className="modal-body">
             <h2 className="serif">{PROJECT.name}</h2>
             <p className="muted">{PROJECT.location}</p>
+            <p className="info-price"><strong>{PROJECT.price}</strong> <span>{PROJECT.priceNote}</span></p>
             <p>{PROJECT.description}</p>
             <ul className="bullets">{PROJECT.highlights.map((h) => <li key={h}>{h}</li>)}</ul>
             <table className="areas">
@@ -31,6 +32,7 @@ export function InfoPanel({ tab }: { tab: 'info' | 'ajuda' }) {
                 <tr className="total"><td>Total dos ambientes</td><td>{total.toFixed(2).replace('.', ',')} m²</td></tr>
               </tbody>
             </table>
+            <a className="btn-wa" href={whatsappUrl()} target="_blank" rel="noreferrer"><Icon.whatsapp /> {PROJECT.contact.label}</a>
             <p className="disclaimer">{PROJECT.disclaimer}</p>
           </div>
         ) : (

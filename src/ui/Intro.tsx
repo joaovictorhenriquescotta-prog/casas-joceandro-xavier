@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import { PROJECT } from '../config/project';
+import { PROJECT, whatsappUrl } from '../config/project';
 import { sharedName } from '../lib/share';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { FACADE_COLORS } from '../config/facadeColors';
@@ -58,6 +58,7 @@ export function Intro({ ready, error }: { ready: boolean; error: string | null }
         <h1>{PROJECT.name}</h1>
         <p className="intro-sub">{PROJECT.tagline}</p>
         <p className="intro-loc">{PROJECT.location}</p>
+        <p className="intro-price"><strong>{PROJECT.price}</strong> <span>{PROJECT.priceNote}</span></p>
         {shared && <p className="intro-shared">Configuração personalizada: <strong>{shared}</strong></p>}
         <div className="intro-actions">
           <button
@@ -119,6 +120,9 @@ export function Intro({ ready, error }: { ready: boolean; error: string | null }
         )}
         <p className="intro-hint">Funciona no navegador do celular, tablet ou computador. Não é preciso instalar nada.</p>
       </div>
+      <a className="wa-float" href={whatsappUrl()} target="_blank" rel="noreferrer" aria-label={PROJECT.contact.label} title={PROJECT.contact.label}>
+        <Icon.whatsapp size={30} />
+      </a>
       {gallery && <Gallery onClose={closeGallery} />}
     </div>
   );

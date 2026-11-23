@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore, type TimeOfDay } from '../store';
 import { Icon } from './icons';
-import { PROJECT } from '../config/project';
+import { PROJECT, whatsappUrl } from '../config/project';
 import { RoomsPanel } from './RoomsPanel';
 import { LightsPanel } from './LightsPanel';
 import { CustomizePanel } from './CustomizePanel';
@@ -86,6 +86,7 @@ export function Hud() {
           )}
         </div>
         <div className="topbar-actions">
+          <a className="icon-btn wa" href={whatsappUrl()} target="_blank" rel="noreferrer" title={PROJECT.contact.label} aria-label={PROJECT.contact.label}><Icon.whatsapp /></a>
           <button className="icon-btn" onClick={() => toggle('info')} title="Informações do empreendimento"><Icon.info /></button>
           <button className="icon-btn" onClick={() => toggle('ajuda')} title="Como navegar"><Icon.help /></button>
           <button className="icon-btn" onClick={fullscreen} title="Tela cheia"><Icon.full /></button>

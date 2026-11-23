@@ -240,3 +240,9 @@ Raiz: `C:/Users/joaov/OneDrive/Área de Trabalho/SITE REALISTA PROJETO JOCEANDRO
 - `4) QR CODE PLACA/`: QR da placa (SVG/PNG).
 - `PROJETO  VISUALIZADOR 3D/CONTEXTO-PROJETO.md`: histórico de tarefas.
 - Não usar Google Drive (G:) para o repositório: o nome com emoji quebra o npm e o Drive grava node_modules vazio.
+
+## Contato e preço (23/11/2026)
+- `src/config/project.ts`: `price` ('R$ 450.000,00', "cada casa"), `contact.whatsapp` = 5527997164677 ((27) 99716-4677) e
+  `contact.message`; `whatsappUrl()` monta o link wa.me com a mensagem pronta.
+- WhatsApp: botão verde flutuante na tela inicial (`.wa-float`), ícone no cabeçalho da visita cinematográfica e na barra
+  do 3D, botão em "O empreendimento". Preço na tela inicial (`.intro-price`) e em "O empreendimento" (`.info-price`).
