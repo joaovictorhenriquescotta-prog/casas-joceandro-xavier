@@ -13,7 +13,7 @@ export const PROJECT = {
     'Fachada com fitas de LED e muro com faixa decorativa',
   ],
   /** Valor de venda de cada casa (as duas unidades têm o mesmo preço). */
-  price: 'R$ 450.000,00',
+  price: 'R$ 469.000,00',
   priceNote: 'cada casa',
   contact: {
     label: 'Fale conosco pelo WhatsApp',
