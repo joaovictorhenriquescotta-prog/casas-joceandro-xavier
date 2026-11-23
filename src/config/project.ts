@@ -1,7 +1,6 @@
 /** Informações comerciais do empreendimento exibidas na visita. */
 export const PROJECT = {
   name: 'Casas Joceandro Xavier',
-  tagline: 'Duas casas geminadas em lote de esquina',
   location: 'Lot. Fazenda São Martinho · Anchieta/ES',
   description:
     'Casas térreas contemporâneas, com sala integrada à cozinha, suíte com banheiro, segundo quarto, banheiro social e garagem coberta. Lote de esquina murado, com jardim frontal.',

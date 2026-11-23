@@ -56,7 +56,6 @@ export function Intro({ ready, error }: { ready: boolean; error: string | null }
       <div className="intro-content">
         <p className="eyebrow">Visita virtual</p>
         <h1>{PROJECT.name}</h1>
-        <p className="intro-sub">{PROJECT.tagline}</p>
         <p className="intro-loc">{PROJECT.location}</p>
         <p className="intro-price"><strong>{PROJECT.price}</strong> <span>{PROJECT.priceNote}</span></p>
         {shared && <p className="intro-shared">Configuração personalizada: <strong>{shared}</strong></p>}
